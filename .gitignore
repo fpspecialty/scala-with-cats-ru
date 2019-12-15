@@ -18,3 +18,7 @@ target/
 project/target
 
 book_deploy_rsa
+
+/translation/bower_components/
+/translation/dist/
+/translation/node_modules
