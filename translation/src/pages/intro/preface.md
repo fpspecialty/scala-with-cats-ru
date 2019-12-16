@@ -1,28 +1,28 @@
-# Preface {-}
+# Предисловие {-}
 
-The aims of this book are two-fold:
-to introduce monads, functors, and other functional programming patterns
-as a way to structure program design,
-and to explain how these concepts are implemented in [Cats][link-cats].
+Эта книга преследует двойную цель:
+представить читателю монады, функторы и другие паттерны функционального программирования
+как способ задать структуру программы;
+и объяснить, как эти средства реализованы в [Cats][link-cats].
 
-Monads, and related concepts, are the functional programming equivalent
-of object-oriented design patterns---architectural building blocks
-that turn up over and over again in code.
-They differ from object-oriented patterns in two main ways:
+Монады и связанные с ними понятия играют в функциональном программировании ту же роль, 
+что и приёмы проектирования в ООП — они являются архитектурными кирпичиками,
+которые встречаются в коде снова и снова.
+Функциональные приёмы отличаются от объектно-ориентированных в двух моментах:
 
-- they are formally, and thus precisely, defined; and
-- they are extremely (extremely) general.
+- они определены формально, следовательно — очень точно;
+- они чрезвычайно (чрезвычайно) обобщённые.
 
-This generality means they can be difficult to understand.
-*Everyone* finds abstraction difficult.
-However, it is generality that allows concepts like monads
-to be applied in such a wide variety of situations.
+Из обобщённости следует, что они могут оказаться трудны для понимания.
+*Каждый* находит абстракцию трудной.
+Но именно обобщённость позволяет таким понятиям, как монады, 
+находить применение в столь широком многообразии ситуаций.
 
-In this book we aim to show the concepts in a number of different ways,
-to help you build a mental model
-of how they work and where they are appropriate.
-We have extended case studies, a simple graphical notation,
-many smaller examples, and of course the mathematical definitions.
-Between them we hope you'll find something that works for you.
+В этой книге мы постарались раскрыть идеи несколькими различными способами,
+чтобы помочь вам составить представление о том,
+как они работают и где применяются.
+В нашем арсенале есть расширенные практические примеры, простые иллюстрации, 
+множество примеров поменьше и, разумеется, математические определения.
+Мы надеемся, что среди них найдётся то, что вам подходит.
 
-Ok, let's get started!
+Давайте приступим!
