@@ -21,7 +21,7 @@
 
 ```tut:book:silent
 object MyApp extends App {
-  println("Hello world!") // Вывод забавного сообщения пользователю!
+  println("Hello world!") // Вывод простого сообщения пользователю
 }
 ```
 
