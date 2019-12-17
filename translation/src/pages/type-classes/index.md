@@ -1,14 +1,14 @@
-# Introduction {#sec:type-classes}
+# Введение {#sec:type-classes}
 
-Cats contains a wide variety of functional programming tools
-and allows developers to pick and choose the ones we want to use.
-The majority of these tools are delivered in the form of *type classes*
-that we can apply to existing Scala types.
+Cats содержит широкий ассортимент средств функциональных программирования
+и позволяет разработчикам выбирать, какие из них использовать.
+Большая часть этих инструментов предоставляется в виде *классов типов (тайпклассы, type classes)*,
+которые мы можем применять к существующим типам Scala.
 
-Type classes are a programming pattern originating in Haskell[^type-class-defn].
-They allow us to extend existing libraries with new functionality,
-without using traditional inheritance,
-and without altering the original library source code.
+Классы типов — это паттерн программирования, пришедший из Haskell[^type-class-defn].
+Они позволяют нам расширять существующие библиотеки новой функциональностью,
+не используя традиционное наследование
+и не изменяя исходный код библиотек.
 
 <!--
 Type classes work well with another programming pattern: *algebraic data types*.
@@ -26,14 +26,14 @@ The extra type information is useful when type classes.
 provide aliases for large, complex types.
 -->
 
-In this chapter we will refresh our memory of type classes
-from Underscore's [Essential Scala][link-essential-scala] book,
-and take a first look at the Cats codebase.
-We will look at two example type classes---`Show` and `Eq`---using
-them to identify patterns that lay the foundations for the rest of the book.
+В этой главе мы освежим в памяти информацию о классах типов
+из книги Underscore [Essential Scala][link-essential-scala]
+и взглянем на кодовую базу Cats.
+Мы рассмотрим два класса типов — `Show` и `Eq` — 
+чтобы на их примере познакомиться с паттернами, лежащими в основе всего, что описано в этой книге.
 
-We'll finish by tying type classes back into algebraic data types,
-pattern matching, value classes, and type aliases,
-presenting a structured approach to functional programming in Scala.
+В конце рассмотрим классы типов в связке с алгебраическими типами данных, 
+сопоставлением с образцом, классами значений и псевдонимами типов,
+и таким образом представим структурированный подход к функциональному программированию в Scala.
 
-[^type-class-defn]: The word "class" doesn't strictly mean `class` in the Scala or Java sense.
+[^type-class-defn]: Слово «класс» не обязательно должно означать `class` в языке Scala или Java.
