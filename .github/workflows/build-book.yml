@@ -1,0 +1,15 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Adjust docker-compose to have all-in-one command
+      run: 'echo "    command: [/bin/bash, -c, ''npm install && sbt all'']" >> docker-compose.yml'
+    - name: Run docker-compose
+      run: docker-compose run book
