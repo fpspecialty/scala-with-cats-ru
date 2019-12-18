@@ -1,54 +1,46 @@
-## Conventions Used in This Book {-}
+## Соглашения, используемые в книге {-}
 
-This book contains a lot of technical information and program code.
-We use the following typographical conventions
-to reduce ambiguity and highlight important concepts:
+Эта книга содержит много технической информации и исходного кода.
+Чтобы избежать двусмысленности и выделить важные понятия
+мы используем следующие типографические соглашения:
 
-### Typographical Conventions {-}
+### Типографические соглашения {-}
 
-New terms and phrases are introduced in *italics*.
-After their initial introduction they are written in normal roman font.
+Введение новых терминов и выражений выделяется *курсивом*. 
 
-Terms from program code, filenames, and file contents,
-are written in `monospace font`.
-Note that we do not distinguish between singular and plural forms.
-For example, we might write `String` or `Strings` to refer to `java.lang.String`.
+Программные термины, имена и содержимое файлов выделяются `моноширинным шрифтом`.
+Обратите внимание, что мы не различаем формы единственного и множественного числа. 
+Например, мы можем написать `String` или `Strings`, имея в виду `java.lang.String`.
 
-References to external resources are written as [hyperlinks][link-underscore].
-References to API documentation are written
-using a combination of hyperlinks and monospace font,
-for example: [`scala.Option`][scala.Option].
+Ссылки на внешние ресурсы записываются как [гиперссылка][описание].
+Гиперссылки на документацию API выделяются моноширинным шрифтом, например: [scala.Option][scala.Option].
 
-### Source Code {-}
+### Исходный код {-}
 
-Source code blocks are written as follows.
-Syntax is highlighted appropriately where applicable:
+Исходный код записывается как указано ниже. По возможности, используется подсветка синтаксиса. 
 
 ```tut:book:silent
 object MyApp extends App {
-  println("Hello world!") // Print a fine message to the user!
+  println("Hello world!") // Вывод простого сообщения пользователю
 }
 ```
 
-Most code passes through [tut][link-tut] to ensure it compiles.
-tut uses the Scala console behind the scenes,
-so we sometimes show console-style output as comments:
+Большая часть исходного кода обрабатывается [tut][link-tut], чтобы убедиться в его компилируемости.
+tut использует Scala REPL, поэтому иногда мы записываем консольный вывод в виде комментариев:
 
 ```tut:book
 "Hello Cats!".toUpperCase
 ```
 
-### Callout Boxes {-}
+### Сноски {-}
 
-We use two types of *callout box* to highlight particular content:
+Мы используем два типа *сносок* для выделения разного содержимого:
 
 <div class="callout callout-info">
-Tip callouts indicate handy summaries, recipes, or best practices.
+Так может быть выделена сводка, рецепт или хорошая практика
 </div>
 
 <div class="callout callout-warning">
-Advanced callouts provide additional information
-on corner cases or underlying mechanisms.
-Feel free to skip these on your first read-through---come
-back to them later for extra information.
+Так может быть выделена дополнительная информация о граничных случаях или деталях реализации. 
+Не стесняйтесь пропускать такие сноски при первом прочтении --- вернитесь к ним позже, когда будет необходимо.
 </div>
