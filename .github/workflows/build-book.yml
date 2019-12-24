@@ -10,6 +10,22 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Adjust docker-compose to have all-in-one command
-      run: 'echo "    command: [/bin/bash, -c, ''npm install && sbt all'']" >> docker-compose.yml'
+      run: 'echo "    command: [/bin/bash, -c, ''cd translation && npm install && sbt all'']" >> docker-compose.yml'
     - name: Run docker-compose
       run: docker-compose run book
+    - name: Prepare generated deploy content
+      if: endsWith(github.ref, '/develop')
+      run: 'mkdir -p dist_pages && cp translation/index.md dist_pages && cp translation/dist/*.pdf dist_pages && cp translation/dist/*.html dist_pages && cp translation/dist/*.epub dist_pages'
+    - name: Deploy to pages
+      if: endsWith(github.ref, '/develop')
+      uses: peaceiris/actions-gh-pages@v2
+      env:
+        ACTIONS_DEPLOY_KEY: ${{secrets.DEPLOY_TO_PAGES_KEY}}
+        PUBLISH_DIR: ./dist_pages
+        PUBLISH_BRANCH: master
+        EXTERNAL_REPOSITORY: fpspecialty/read-scala-with-cats-ru
+      with:
+        emptyCommits: false
+        forceOrphan: true
+
+
