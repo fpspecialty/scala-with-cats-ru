@@ -185,7 +185,7 @@ import cats.instances.string._ // для Show
 import cats.syntax.show._      // для show
 ```
 
-Наше опредение `Cat` остаётся прежним:
+Наше определение типа `Cat` остаётся прежним:
 
 ```tut:book:silent
 final case class Cat(name: String, age: Int, color: String)
