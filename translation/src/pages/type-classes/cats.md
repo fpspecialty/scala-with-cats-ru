@@ -1,18 +1,16 @@
-## Meet Cats
+## Встречайте Cats!
 
-In the previous section we saw how to implement type classes in Scala.
-In this section we will look at how type classes are implemented in Cats.
+В предыдущей части мы увидели, как реализованы тайпклассы в Scala.
+В этой части мы увидим, как тайпклассы реализуются в Cats.
 
-Cats is written using a modular structure
-that allows us to choose which type classes, instances,
-and interface methods we want to use.
-Let's take a first look using [`cats.Show`][cats.Show] as an example.
+Cats написаны с помощью модульной структуры, 
+которая позволяет нам выбрать, какие тайпклассы, экземпляры
+и интерфейсные методы мы хотим использовать.
+Давайте, например, посмотрим на [`cats.Show`][cats.Show].
 
-`Show` is Cats' equivalent of
-the `Printable` type class we defined in the last section.
-It provides a mechanism for producing
-developer-friendly console output without using `toString`.
-Here's an abbreviated definition:
+В предыдущей главе мы создали тайпкласс `Printable`. `Show` - это эквивалент этого тайпкласса, определённый в Cats.
+Он предоставляет механизм создания дружественного-к-разработчику консольного вывода без использования `toString`.
+Ниже представлено его сокращённое определение:
 
 ```scala
 package cats
@@ -22,55 +20,54 @@ trait Show[A] {
 }
 ```
 
-### Importing Type Classes
+### Импортирование тайпклассов
 
-The type classes in Cats are defined in the [`cats`][cats.package] package.
-We can import `Show` directly from this package:
+Тайпклассы в Cats определены в пакете [`cats`][cats.package].
+Мы можем напрямую импортировать `Show` из этого пакета:
 
 ```tut:book:silent
 import cats.Show
 ```
 
-The companion object of every Cats type class has an `apply` method
-that locates an instance for any type we specify:
+Объект-компаньон каждого тайпкласса в Cats оснащён методом `apply`, 
+который ищет экземпляры для любого указанного нами типа:
 
 ```tut:book:fail
 val showInt = Show.apply[Int]
 ```
 
-Oops---that didn't work!
-The `apply` method uses *implicits* to look up individual instances,
-so we'll have to bring some instances into scope.
+Упс---это не работает!
+Метод `apply` использует *'implicit'-ы* для поиска отдельных экземпляров,
+поэтому мы должны импортировать некоторые экземпляры в нашу область видимости.
 
-### Importing Default Instances {#importing-default-instances}
+### Импортирование экземпляров по умолчанию {#importing-default-instances}
 
-The [`cats.instances`][cats.instances] package
-provides default instances for a wide variety of types.
-We can import these as shown in the table below.
-Each import provides instances of all Cats' type classes
-for a specific parameter type:
+Пакет [`cats.instances`][cats.instances] предоставляет готовые экземпляры для большого набора типов.
+Ниже показаны примеры их импортирования.
+Импортирование каждого подпакета предоставляет экземпляры всех тайпклассов из Cats
+для указанного типового параметра:
 
-- [`cats.instances.int`][cats.instances.int] provides instances for `Int`
-- [`cats.instances.string`][cats.instances.string] provides instances for `String`
-- [`cats.instances.list`][cats.instances.list] provides instances for `List`
-- [`cats.instances.option`][cats.instances.option] provides instances for `Option`
-- [`cats.instances.all`][cats.instances.all] provides all instances that are shipped out of the box with Cats
+- [`cats.instances.int`][cats.instances.int] предоставляет экземпляры для `Int`
+- [`cats.instances.string`][cats.instances.string] предоставляет экземпляры для `String`
+- [`cats.instances.list`][cats.instances.list] предоставляет экземпляры для `List`
+- [`cats.instances.option`][cats.instances.option] предоставляет экземпляры для `Option`
+- [`cats.instances.all`][cats.instances.all] предоставляет все экземпляры, которые поставляются вместе с Cats "из коробки"
 
-See the [`cats.instances`][cats.instances] package
-for a complete list of available imports.
+Вы можете заглянуть в пакет [`cats.instances`][cats.instances], 
+чтобы увидеть полный список подпакетов, доступных для импорта.
 
-Let's import the instances of `Show` for `Int` and `String`:
+Давайте импортируем экземпляры тайпкласса `Show` для `Int` и `String`:
 
 ```tut:book:silent
-import cats.instances.int._    // for Show
-import cats.instances.string._ // for Show
+import cats.instances.int._    // для Show
+import cats.instances.string._ // для Show
 
 val showInt:    Show[Int]    = Show.apply[Int]
 val showString: Show[String] = Show.apply[String]
 ```
 
-That's better! We now have access to two instances of `Show`,
-and can use them to print `Ints` and `Strings`:
+Так-то лучше! Теперь у нас есть два экземпляра тайпкласса `Show`,
+которые мы можем использовать для вывода значений типов `Int` and `String` на консоль:
 
 ```tut:book
 val intAsString: String =
@@ -80,15 +77,15 @@ val stringAsString: String =
   showString.show("abc")
 ```
 
-### Importing Interface Syntax
+### Импортирование интерфейсного синтаксиса
 
-We can make `Show` easier to use by
-importing the *interface syntax* from [`cats.syntax.show`][cats.syntax.show].
-This adds an extension method called `show`
-to any type for which we have an instance of `Show` in scope:
+Мы можем сделать `Show` более лёгким для использования посредством
+импортирования *интерфейсного синтаксиса* из [`cats.syntax.show`][cats.syntax.show].
+Это добавит метод расширения `show`
+к любому типу, для которого существует доступный в нашей области видимости экземпляр тайпкласса `Show`:
 
 ```tut:book:silent
-import cats.syntax.show._ // for show
+import cats.syntax.show._ // для show
 ```
 
 ```tut:book
@@ -97,42 +94,39 @@ val shownInt = 123.show
 val shownString = "abc".show
 ```
 
-Cats provides separate syntax imports for each type class.
-We will introduce these as we encounter them in later sections and chapters.
+Cats предоставляет раздельное импортирование синтаксиса для каждого тайпкласса.
+Мы познакомимся с ним в следующих главах.
 
-### Importing All The Things!
+### Импортировать всё что можно!
 
-In this book we will use specific imports to show you
-exactly which instances and syntax you need in each example.
-However, this can be time consuming for many use cases.
-You should feel free to take one of the following shortcuts
-to simplify your imports:
+В этой книге мы будем использовать импортирование конкретных пакетов, чтобы показать
+точнее, какие экземпляры и синтаксис нужны вам в каждом примере.
+Но во многих случаях такой подход может отнимать много времени, 
+поэтому не стесняйтесь упрощать себе импортирование следующими способами:
 
-- `import cats._` imports all of Cats' type classes in one go;
+- `import cats._` импортирует все тайпклассы из Cats за один шаг;
 
-- `import cats.instances.all._` imports
-  all of the type class instances for the standard library in one go;
+- `import cats.instances.all._` импортирует все экземпляры тайпклассов для стандартной библиотеки за один шаг;
 
-- `import cats.syntax.all._` imports all of the syntax in one go;
+- `import cats.syntax.all._` импортирует весь синтаксис за один шаг;
 
-- `import cats.implicits._` imports
-  all of the standard type class instances
-  *and* all of the syntax in one go.
+- `import cats.implicits._` импортирует все стандартные экземпляры тайпклассов
+  *и* весь синтаксис за один шаг.
 
-Most people start their files with the following imports,
-reverting to more specific imports only
-if they encounter naming conflicts
-or problems with ambiguous implicits:
+Большинство людей начинают файлы программного кода следующими общими директивами импорта,
+возвращаясь к более конкретному импортированию только если 
+они сталкиваются с конфликтом имён
+или с проблемами неоднозначных 'implicit'-ов:
 
 ```tut:book:silent
 import cats._
 import cats.implicits._
 ```
 
-### Defining Custom Instances {#defining-custom-instances}
+### Определение пользовательских экземпляров {#defining-custom-instances}
 
-We can define an instance of `Show`
-simply by implementing the trait for a given type:
+Мы можем определить экземпляр тайпкласса `Show` достаточно просто - 
+посредством реализации типажа (трейта) для данного типа:
 
 ```tut:book:silent
 import java.util.Date
@@ -144,63 +138,61 @@ implicit val dateShow: Show[Date] =
   }
 ```
 
-However, Cats also provides
-a couple of convenient methods to simplify the process.
-There are two construction methods on the companion object of `Show`
-that we can use to define instances for our own types:
+Для упрощения процесса, Cats также предоставляет
+пару удобных методов.
+Для определения экземпляров наших собственных, пользовательских типов мы можем использовать два метода конструирования из объекта-компаньона тайпкласса `Show`:
 
 ```scala
 object Show {
-  // Convert a function to a `Show` instance:
+  // Преобразование функции в экземпляр тайпкласса `Show`:
   def show[A](f: A => String): Show[A] =
     ???
 
-  // Create a `Show` instance from a `toString` method:
+  // Создание экземпляра тайпкласса `Show` из метода `toString`:
   def fromToString[A]: Show[A] =
     ???
 }
 ```
 
-These allow us to quickly construct instances
-with less ceremony than defining them from scratch:
+Эти методы позволяют нам быстро создавать экземпляры - 
+с меньшим числом "приседаний" по сравнению с созданием "с нуля":
 
 ```tut:book:silent
 implicit val dateShow: Show[Date] =
   Show.show(date => s"${date.getTime}ms since the epoch.")
 ```
 
-As you can see, the code using construction methods
-is much terser than the code without.
-Many type classes in Cats provide helper methods like these
-for constructing instances, either from scratch
-or by transforming existing instances for other types.
+Как вы можете заметить, при использовании конструирующих методов код получается 
+намного более лаконичным.
+Многие тайпклассы из Cats предоставляют методы-"помощники", подобные представленным выше,
+для создания экземпляров "с нуля" или через преобразование существующих экземпляров для других типов.
 
-### Exercise: Cat Show
+### Упражнение: Cat Show
 
-Re-implement the `Cat` application from the previous section
-using `Show` instead of `Printable`.
+Реализуйте заново приложение `Cat` из предыдущей главы,
+используя тайпкласс `Show` вместо `Printable`.
 
 <div class="solution">
-First let's import everything we need from Cats:
-the `Show` type class,
-the instances for `Int` and `String`,
-and the interface syntax:
+Для начала, давайте импортируем всё, что нам нужно, из Cats:
+тайпкласс `Show`,
+экземпляры для `Int` и `String`,
+и интерфейсный синтаксис:
 
 ```tut:book:silent
 import cats.Show
-import cats.instances.int._    // for Show
-import cats.instances.string._ // for Show
-import cats.syntax.show._      // for show
+import cats.instances.int._    // для Show
+import cats.instances.string._ // для Show
+import cats.syntax.show._      // для show
 ```
 
-Our definition of `Cat` remains the same:
+Наше опредение `Cat` остаётся прежним:
 
 ```tut:book:silent
 final case class Cat(name: String, age: Int, color: String)
 ```
 
-In the companion object we replace our `Printable` with an instance of `Show`
-using one of the definition helpers discussed above:
+Заменим наш `Printable` экземпляром тайпкласса `Show` в объекте-компаньоне, 
+используя одно из определений методов-"помощников", обсуждавшихся выше:
 
 ```tut:book:silent
 implicit val catShow = Show.show[Cat] { cat =>
@@ -211,7 +203,7 @@ implicit val catShow = Show.show[Cat] { cat =>
 }
 ```
 
-Finally, we use the `Show` interface syntax to print our instance of `Cat`:
+В конце, чтобы "распечатать" наш экземпляр типа `Cat`, мы используем интерфейсный синтаксис тайпкласса `Show`:
 
 ```tut:book
 println(Cat("Garfield", 38, "ginger and black").show)
