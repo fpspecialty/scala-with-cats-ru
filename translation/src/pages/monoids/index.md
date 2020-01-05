@@ -1,22 +1,22 @@
-# Monoids and Semigroups {#sec:monoids}
+# Моноиды и Полугруппы {#sec:monoids}
 
-In this section we explore our first type classes, **monoid** and **semigroup**.
-These allow us to add or combine values.
-There are instances for `Ints`, `Strings`, `Lists`, `Options`, and many more.
-Let's start by looking at a few simple types and operations
-to see what common principles we can extract.
+В этой главе мы изучим наши первые тайпклассы - **моноид** и **полугруппу**.
+Они позволяют складывать и сочетать значения.
+Их экземпляры существуют для типов `Int`, `String`, `List`, `Option` и многих других.
+Давайте начнем с рассмотрения нескольких простых типов и операций
+чтобы увидеть, какие общие принципы можно извлечь.
 
-**Integer addition**
+**Сложение целых чисел**
 
-Addition of `Ints` is a binary operation that is *closed*,
-meaning that adding two `Ints` always produces another `Int`:
+Сложение целых чисел (`Int`) является *замкнутой* бинарной операцией,
+потому что её применение над двумя `Int` всегда возвращает другой `Int`:
 
 ```tut:book
 2 + 1
 ```
 
-There is also the *identity* element `0` with the property
-that `a + 0 == 0 + a == a` for any `Int` `a`:
+Кроме того, существует *тождественный* (identity) элемент `0` такой, что
+ `a + 0 == 0 + a == a` для любого `Int` `a`:
 
 ```tut:book
 2 + 0
@@ -24,10 +24,10 @@ that `a + 0 == 0 + a == a` for any `Int` `a`:
 0 + 2
 ```
 
-There are also other properties of addition.
-For instance, it doesn't matter in what order we add elements
-because we always get the same result.
-This is a property known as *associativity*:
+У сложения есть и другие свойства.
+Например, вне зависимости от порядка, в котором мы складываем элементы,
+мы всегда получим тот же самый результат.
+Это свойство называется *ассоциативность*:
 
 ```tut:book
 (1 + 2) + 3
@@ -35,10 +35,10 @@ This is a property known as *associativity*:
 1 + (2 + 3)
 ```
 
-**Integer multiplication**
+**Умножение целых чисел**
 
-The same properties for addition also apply for multiplication,
-provided we use `1` as the identity instead of `0`:
+Эти же свойства сложения применимы и для умножения,
+если в качестве тождественного элемента мы используем `1` вместо `0`:
 
 ```tut:book
 1 * 3
@@ -46,7 +46,7 @@ provided we use `1` as the identity instead of `0`:
 3 * 1
 ```
 
-Multiplication, like addition, is associative:
+Умножение, как и сложение, ассоциативно:
 
 ```tut:book
 (1 * 2) * 3
@@ -54,16 +54,16 @@ Multiplication, like addition, is associative:
 1 * (2 * 3)
 ```
 
-**String and sequence concatenation**
+**Конкатенация строк и последовательностей**
 
-We can also add `Strings`,
-using string concatenation as our binary operator:
+Мы так же можем складывать и строки (`String`),
+используя в качестве бинарной операции конкатенацию: 
 
 ```tut:book
 "One" ++ "two"
 ```
 
-and the empty string as the identity:
+а пустую строку как тождественный элемент:
 
 ```tut:book
 "" ++ "Hello"
@@ -71,7 +71,7 @@ and the empty string as the identity:
 "Hello" ++ ""
 ```
 
-Once again, concatenation is associative:
+И снова, конкатенация является ассоциативной:
 
 ```tut:book
 ("One" ++ "Two") ++ "Three"
@@ -79,25 +79,25 @@ Once again, concatenation is associative:
 "One" ++ ("Two" ++ "Three")
 ```
 
-Note that we used `++` above instead of the more usual `+`
-to suggest a parallel with sequences.
-We can do the same with other types of sequence,
-using concatenation as the binary operator
-and the empty sequence as our identity.
+Обратите внимание, что выше мы использовали `++` вместо более привычного `+`
+чтобы провести параллель с последовательностями.
+Используя конкатенацию как бинарную операцию,
+а пустую последовательность для тождественности,
+мы можем делать то же самое с последовательностями любых других типов.
 
-## Definition of a Monoid
+## Определение Моноида
 
-We've seen a number of "addition" scenarios above
-each with an associative binary addition
-and an identity element.
-It will be no surprise to learn that this is a monoid.
-Formally, a monoid for a type `A` is:
+Выше мы рассмотрели несколько вариантов "сложения", 
+каждый с ассоциативной бинарной операцией
+и тождественным элементом.
+Нет ничего удивительного в том, что это и есть моноид.
+Формально, моноид для типа `A` это:
 
-- an operation `combine` with type `(A, A) => A`
-- an element `empty` of type `A`
+- операция сочетания (`combine`) с типом `(A, A) => A`
+- пустой (`empty`) элемент типа `A`
 
-This definition translates nicely into Scala code.
-Here is a simplified version of the definition from Cats:
+Это определение хорошо ложится на Scala-код.
+Так выглядит упрощенная версия определения от Cats:
 
 ```tut:book:silent
 trait Monoid[A] {
@@ -106,11 +106,11 @@ trait Monoid[A] {
 }
 ```
 
-In addition to providing the `combine` and `empty` operations,
-monoids must formally obey several *laws*.
-For all values `x`, `y`, and `z`, in `A`,
-`combine` must be associative and
-`empty` must be an identity element:
+Помимо предоставления `combine` и `empty`,
+моноиды должны подчиняться нескольким формальным *законам*.
+Для любых `x`, `y`, и `z`, из `A`,
+операция `combine` должна быть ассоциативной, а
+элемент `empty` должен быть тождественным элементом:
 
 ```tut:book:silent
 def associativeLaw[A](x: A, y: A, z: A)
@@ -126,8 +126,8 @@ def identityLaw[A](x: A)
 }
 ```
 
-Integer subtraction, for example,
-is not a monoid because subtraction is not associative:
+Например, разница целых чисел не является моноидом,
+так как вычитание не ассоциативно:
 
 ```tut:book
 (1 - 2) - 3
@@ -135,29 +135,28 @@ is not a monoid because subtraction is not associative:
 1 - (2 - 3)
 ```
 
-In practice we only need to think about laws
-when we are writing our own `Monoid` instances.
-Unlawful instances are dangerous because
-they can yield unpredictable results
-when used with the rest of Cats' machinery.
-Most of the time we can rely on the instances provided by Cats
-and assume the library authors know what they're doing.
+На практике о законах приходится думать только 
+когда мы пишем собственные экземпляры `Monoid`.
+Экземпляры, для которых не выполняются законы - опасны, 
+так как могут привести к непредсказуемым результатам
+при использовании с остальной струкрутрой Cats.
+Полагая, что авторы библиотеки знают, что они делают,
+в большинстве случаев можно полагаться на экземпляры предоставляемые Cats.
 
-## Definition of a Semigroup
+## Определение полугруппы
 
-A semigroup is just the `combine` part of a monoid.
-While many semigroups are also monoids,
-there are some data types for which we cannot define an `empty` element.
-For example, we have just seen that
-sequence concatenation and integer addition are monoids.
-However, if we restrict ourselves
-to non-empty sequences and positive integers,
-we are no longer able to define a sensible `empty` element.
-Cats has a [`NonEmptyList`][cats.data.NonEmptyList] data type
-that has an implementation of `Semigroup` but no implementation of `Monoid`.
+Полугруппа это всего лишь `combine` часть моноида.
+И хотя полугруппы зачастую являются моноидами,
+для некоторых типов данных нельзя определить элемент `empty`.
+Например, как мы только что видели, моноидами являются
+конкатенация последовательностей и сложение целых чисел.
+Однако, если мы ограничимся непустыми последовательностями и положительными числами,
+мы больше не сможем определить осмысленный элемент `empty`.
+В Cats есть тип данных [`NonEmptyList`][cats.data.NonEmptyList] 
+для которого есть реализация `Semigroup` но отсутсвует `Monoid`.
 
-A more accurate (though still simplified)
-definition of Cats' [`Monoid`][cats.Monoid] is:
+Более точное (но по-прежнему упращенное)
+определение [`Monoid`][cats.Monoid] в Cats:
 
 ```tut:book:silent
 trait Semigroup[A] {
@@ -169,19 +168,19 @@ trait Monoid[A] extends Semigroup[A] {
 }
 ```
 
-We'll see this kind of inheritance often when discussing type classes.
-It provides modularity and allows us to re-use behaviour.
-If we define a `Monoid` for a type `A`, we get a `Semigroup` for free.
-Similarly, if a method requires a parameter of type `Semigroup[B]`,
-we can pass a `Monoid[B]` instead.
+При изучении тайпклассов, такой вид наследования мы будем видеть часто.
+Он обеспечивает модульность и позволяет переиспользовать поведение.
+Если мы определим `Monoid` для типа `A`, мы автоматически получим `Semigroup`.
+Аналогично, если методу нужен параметр с типом `Semigroup[B]`,
+мы можем вместо этого передать `Monoid[B]`.
 
-## Exercise: The Truth About Monoids
+## Упражнение: Истинные Моноиды
 
-We've seen a few examples of monoids but there are plenty more to be found.
-Consider `Boolean`. How many monoids can you define for this type?
-For each monoid, define the `combine` and `empty` operations
-and convince yourself that the monoid laws hold.
-Use the following definitions as a starting point:
+Мы посмотрели на несколько примеров моноида, но найти их можно гораздо больше. 
+Рассмотрим `Boolean`. Сколько моноидов вы сможете определить для этого типа?
+Для каждого моноида задайте операции `combine` и `empty`, а так же убедитесь,
+что законы моноида соблюдены.
+Для начала упражнения используйте определения ниже:
 
 ```tut:book:reset:silent
 trait Semigroup[A] {
@@ -199,8 +198,8 @@ object Monoid {
 ```
 
 <div class="solution">
-There are four monoids for `Boolean`!
-First, we have *and* with operator `&&` and identity `true`:
+Есть целых четыре моноида для типа `Boolean`!
+Во-первых, у нас есть *и* с оператором `&&` и тождественным `true`:
 
 ```tut:book:silent
 implicit val booleanAndMonoid: Monoid[Boolean] =
@@ -210,7 +209,7 @@ implicit val booleanAndMonoid: Monoid[Boolean] =
   }
 ```
 
-Second, we have *or* with operator `||` and identity `false`:
+Во-вторых, есть *или* с оператором `||` и тождественным `false`:
 
 ```tut:book:silent
 implicit val booleanOrMonoid: Monoid[Boolean] =
@@ -220,7 +219,7 @@ implicit val booleanOrMonoid: Monoid[Boolean] =
   }
 ```
 
-Third, we have *exclusive or* with identity `false`:
+В-третьих, у нас есть *исключающее или* с тождественным `false`:
 
 ```tut:book:silent
 implicit val booleanEitherMonoid: Monoid[Boolean] =
@@ -232,8 +231,8 @@ implicit val booleanEitherMonoid: Monoid[Boolean] =
   }
 ```
 
-Finally, we have *exclusive nor* (the negation of exclusive or)
-with identity `true`:
+Наконец, у нас есть *ислючающее ни* (инверсия исключающего или)
+с тождественным `true`:
 
 ```tut:book:silent
 implicit val booleanXnorMonoid: Monoid[Boolean] =
@@ -245,17 +244,16 @@ implicit val booleanXnorMonoid: Monoid[Boolean] =
   }
 ```
 
-Showing that the identity law holds in each case is straightforward.
-Similarly associativity of the `combine` operation
-can be shown by enumerating the cases.
+Легко увидеть, что в каждом случае соблюдается закон тождественности.
+Аналогично, простым перечислением значений может быть показана ассоциативность операции `combine`.
 </div>
 
-## Exercise: All Set for Monoids
+## Упражнение: Полное множество моноидов
 
-What monoids and semigroups are there for sets?
+Какие моноиды и полугруппы есть для множеств?
 
 <div class="solution">
-*Set union* forms a monoid along with the empty set:
+*Объединение можеств* наряду с пустым множеством образуют моноид:
 
 ```tut:book:silent
 implicit def setUnionMonoid[A]: Monoid[Set[A]] =
@@ -265,10 +263,10 @@ implicit def setUnionMonoid[A]: Monoid[Set[A]] =
   }
 ```
 
-We need to define `setUnionMonoid` as a method
-rather than a value so we can accept the type parameter `A`.
-The type parameter allows us to use the same definition
-to summon `Monoids` for `Sets` of any type of data:
+Чтобы принимать любой типовый параметр `A`, неоходимо
+определить `setUnionMonoid` как метод, а не значение.
+Параметр типа позволяет нам переиспользовать определение
+чтобы требовать `Monoid` для `Set` любого типа данных:
 
 ```tut:book:silent
 val intSetMonoid = Monoid[Set[Int]]
@@ -280,8 +278,8 @@ intSetMonoid.combine(Set(1, 2), Set(2, 3))
 strSetMonoid.combine(Set("A", "B"), Set("B", "C"))
 ```
 
-Set intersection forms a semigroup,
-but doesn't form a monoid because it has no identity element:
+Операция пересечения множеств образует полугруппу,
+но не является моноидом, т.к. у неё нет тождественного элемента:
 
 ```tut:book:silent
 implicit def setIntersectionSemigroup[A]: Semigroup[Set[A]] =
@@ -291,10 +289,10 @@ implicit def setIntersectionSemigroup[A]: Semigroup[Set[A]] =
   }
 ```
 
-Set complement and set difference are not associative,
-so they cannot be considered for either monoids or semigroups.
-However, symmetric difference (the union less the intersection)
-does also form a monoid with the empty set:
+Операции дополнения и разности множеств не ассоциативные,
+поэтому не могут быть рассмотрены ни для моноида, ни для полугруппы.
+Однако, симметричная разность (объединение без пересечения) и пустое множество
+так же формируют моноид:
 
 ```tut:book:silent
 implicit def symDiffMonoid[A]: Monoid[Set[A]] =
