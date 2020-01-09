@@ -1,11 +1,11 @@
-## Acknowledgements {-}
+## Благодарности {-}
 
-We'd like to thank our colleagues at Underscore,
-our friends at Typelevel,
-and everyone who helped contribute to this book.
-Special thanks to Jenny Clements for her fantastic artwork
-and Richard Dallaway for his proof reading expertise.
-Here is an alphabetical list of contributors:
+Мы хотим поблагодарить наших коллег из Underscore,
+наших друзей из Typelevel
+и всех, кто помог нам, внеся свой вклад в эту книгу.
+Мы выражаем особую благодарность Jenny Clements за её фантастические иллюстрации
+и Richard Dallaway за проведённую им корректорскую экспертизу.
+Ниже представлен список участников в алфавитном порядке:
 
 Alessandro Marrella,
 Cody Koeninger,
@@ -58,8 +58,8 @@ Sergio Magnacco,
 Tim McIver,
 Toby Weston,
 Victor Osolovskiy,
-and Yinka Erinle.
+и Yinka Erinle.
 
-If you spot an error or potential improvement,
-please raise an issue or submit a PR
-on the book's [Github page][link-github].
+Если вы обнаружили ошибку или можете предложить улучшение,
+пожалуйста, создайте задачу или отправьте пулл-реквест
+на странице книги в Github [Github page][link-github].
