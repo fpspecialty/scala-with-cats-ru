@@ -1,7 +1,7 @@
-## Working with Implicits
+## Работа с неявными параметрами
 
 ```tut:book:invisible
-// Forward definitions
+// Тайпкласс и экземпляры, определённые ранее
 
 sealed trait Json
 final case class JsObject(get: Map[String, Json]) extends Json
@@ -31,7 +31,7 @@ object JsonWriterInstances {
         ))
     }
 
-  // etc...
+  // и т.д.
 }
 
 import JsonWriterInstances._
@@ -42,51 +42,53 @@ object Json {
 }
 ```
 
-Working with type classes in Scala means
-working with implicit values and implicit parameters.
-There are a few rules we need to know to do this effectively.
+Работа с тайпклассами в Scala 
+подразумевает работу с неявными параметрами и их значениями.
+Чтобы быть эффективными в этом, следует знать несколько правил.
 
-### Packaging Implicits
+### Упаковка implicit-значений
 
-In a curious quirk of the language,
-any definitions marked `implicit` in Scala must be placed
-inside an object or trait rather than at the top level.
-In the example above we packaged our type class instances
-in an object called `JsonWriterInstances`.
-We could equally have placed them
-in a companion object to `JsonWriter`.
-Placing instances in a companion object
-to the type class has special significance in Scala
-because it plays into something called *implicit scope*.
+Любопытной особенностью Scala является то, 
+что любые определения, помеченные как `implicit`, должны быть расположены 
+внутри объекта или трейта, а не на верхнем уровне модуля.
+В приведенном выше примере мы упаковали наши экземпляры тайпкласса
+в объект с именем `JsonWriterInstances`.
+Мы могли бы также поместить их 
+в объект-компаньон `JsonWriter`.
+Размещение экземпляров в объекте-компаньоне тайпкласса
+имеет особое значение в Scala, 
+потому что такой объект является частью неявного контекста (implicit scope).
 
-### Implicit Scope
+### Неявный контекст
 
-As we saw above, the compiler searches
-for candidate type class instances by type.
-For example, in the following expression
-it will look for an instance of type
+Как мы уже убедились, компилятор ищет
+кандидатов в экземпляры тайпкласса на основании их типа.
+Например, в следующем выражении
+он будет искать экземпляр, который имеет тип
+
 `JsonWriter[String]`:
 
 ```tut:book:silent
 Json.toJson("A string!")
 ```
 
-The compiler searches for candidate instances
-in the *implicit scope* at the call site,
-which roughly consists of:
+Компилятор ищет экземпляры-кандидаты
+в *неявном контексте* по месту вызова, 
+которое приближённо состоит из:
 
-- local or inherited definitions;
+- локальных или унаследованных определений;
 
-- imported definitions;
+- импортированных определений;
 
-- definitions in the companion object
-  of the type class or the parameter type
-  (in this case `JsonWriter` or `String`).
+- определения в объекте-компаньоне тайпкласса
+  или объекте-компаньоне самого типа 
+  (в данном случае — `JsonWriter` или `String`).
 
-Definitions are only included in implicit scope
-if they are tagged with the `implicit` keyword.
-Furthermore, if the compiler sees multiple candidate definitions,
-it fails with an *ambiguous implicit values* error:
+Определения включаются в неявный контекст только в том случае,
+если они помечены ключевым словом `implicit`.
+Кроме того, если компилятор встречает несколько определений кандидатов одного типа,
+он прекращает компиляцию с ошибкой о том, 
+что *`implicit`-значения определены неоднозначно* (ambiguous implicit values):
 
 ```scala
 implicit val writer1: JsonWriter[String] =
@@ -104,49 +106,51 @@ Json.toJson("A string")
 //                     ^
 ```
 
-The precise rules of implicit resolution are more complex than this,
-but the complexity is largely irrelevant for this book[^implicit-search].
-For our purposes, we can package type class instances in roughly four ways:
+Точные правила поиска значений неявных параметров существенно сложнее, 
+но эта сложность должна рассматриваться за пределами данной книги [^implicit-search].
+Нашим же потребностям отвечают четыре основных способа разместить экземпляры тайпклассов:
 
-1. by placing them in an object such as `JsonWriterInstances`;
-2. by placing them in a trait;
-3. by placing them in the companion object of the type class;
-4. by placing them in the companion object of the parameter type.
+1. в объекте, подобно `JsonWriterInstances`;
+2. в трейте;
+3. в объекте-компаньоне тайпкласса;
+4. в объекте-компаньоне нужного нам типа.
 
-With option 1 we bring instances into scope by `importing` them.
-With option 2 we bring them into scope with inheritance.
-With options 3 and 4, instances are *always* in implicit scope,
-regardless of where we try to use them.
+В варианте 1 мы добавляем экземпляры в область видимости, явно импортируя их.
+В варианте 2 мы вводим их в область видимости в результате наследования.
+В вариантах 3 и 4 экземпляры *всегда* находятся в неявном контексте,
+независимо от того, где мы пытаемся их использовать.
 
-[^implicit-search]: If you're interested in the finer rules of implicit resolution in Scala,
-start by taking a look at [this Stack Overflow post on implicit scope][link-so-implicit-scope]
-and [this blog post on implicit priority][link-implicit-priority].
+[^implicit-search]: Если вас заинтересуют более тонкие правила 
+поиска значений неявных параметров в Scala,
+обратите внимание на [этот ответ о неявном контексте на Stack Overflow][link-so-implicit-scope]
+и [этот пост о приоритетах в поиске неявных параметров][link-implicit-priority].
 
-### Recursive Implicit Resolution {#sec:type-classes:recursive-implicits}
+### Рекурсивный поиск неявных параметров {#sec:type-classes:recursive-implicits}
 
-The power of type classes and implicits lies in
-the compiler's ability to *combine* implicit definitions
-when searching for candidate instances.
+Сила тайпклассов и неявных параметров происходит 
+из способности компилятора *комбинировать* определения `implicit`-значений 
+при поиске возможных вариантов.
 
-Earlier we insinuated that all type class instances
-are `implicit vals`. This was a simplification.
-We can actually define instances in two ways:
+Ранее мы говорили об экземплярах тайпклассов так, 
+будто они всегда объявляются как `implicit val`. 
+Это было упрощением.
+Мы можем определять экземпляры двумя способами:
 
-1. by defining concrete instances as
-   `implicit vals` of the required type[^implicit-objects];
+1. определяя конкретные экземпляры 
+   как `implicit val` требуемого типа[^implicit-objects];
 
-2. by defining `implicit` methods to
-   construct instances from other type class instances.
+2. определяя `implicit`-методы для создания экземпляров 
+   нужного типа из экземпляров другого типа.
 
-[^implicit-objects]: `implicit objects` are treated the same way.
+[^implicit-objects]: К этому способу относятся и объявления `implicit object`.
 
-Why would we construct instances from other instances?
-As a motivational example,
-consider defining a `JsonWriter` for `Options`.
-We would need a `JsonWriter[Option[A]]`
-for every `A` we care about in our application.
-We could try to brute force the problem by creating
-a library of `implicit vals`:
+Зачем нам может понадобиться создавать одни экземпляры из других?
+В качестве мотивационного примера 
+представим себе определение `JsonWriter` для `Option`.
+Очевидно, нам понадобится `JsonWriter[Option[A]]` 
+для каждого типа `A`, который будет использоваться в приложении.
+Мы могли бы попытаться решить проблему «в лоб», 
+создав библиотеку таких `implicit`-значений:
 
 ```scala
 implicit val optionIntWriter: JsonWriter[Option[Int]] =
@@ -155,23 +159,23 @@ implicit val optionIntWriter: JsonWriter[Option[Int]] =
 implicit val optionPersonWriter: JsonWriter[Option[Person]] =
   ???
 
-// and so on...
+// и т.д.
 ```
 
-However, this approach clearly doesn't scale.
-We end up requiring two `implicit vals`
-for every type `A` in our application:
-one for `A` and one for `Option[A]`.
+Однако, совершенно очевидно, что такой подход не масштабируется.
+Кончится тем, что мы объявим по два `implicit`-значения 
+для каждого типа `A` в нашем приложении: 
+одно для `A` и одно для `Option[A]`.
 
-Fortunately, we can abstract the code for handling `Option[A]`
-into a common constructor based on the instance for `A`:
+К счастью, мы можем абстрагировать код для работы с любыми `Option[A]` 
+в общий конструктор, основанный на конкретных экземплярах для типа `A`:
 
-- if the option is `Some(aValue)`,
-  write `aValue` using the writer for `A`;
+- если `option` представлен значением `Some(aValue)`, 
+  то обрабатываем значение `aValue`, используя writer для `A`;
 
-- if the option is `None`, return `JsNull`.
+- если `option` представлен значением `None` — возвращаем `JsNull`.
 
-Here is the same code written out as an `implicit def`:
+Вот как это реализуется посредством `implicit def`:
 
 ```tut:book:silent
 implicit def optionWriter[A]
@@ -185,54 +189,53 @@ implicit def optionWriter[A]
   }
 ```
 
-This method *constructs* a `JsonWriter` for `Option[A]` by
-relying on an implicit parameter to
-fill in the `A`-specific functionality.
-When the compiler sees an expression like this:
+Этот метод *создает*  экземпляр `JsonWriter` для `Option[A]`, 
+полагаясь на неявный параметр в том, чтобы реализовать функциональность, 
+специфичную для типа `A`.
+Когда компилятор встречает выражение вроде такого:
 
 ```tut:book:silent
 Json.toJson(Option("A string"))
 ```
 
-it searches for an implicit `JsonWriter[Option[String]]`.
-It finds the implicit method for `JsonWriter[Option[A]]`:
+он ищет значение для неявного параметра `JsonWriter[Option[String]]`.
+Он находит `implicit`-метод для `JsonWriter[Option[A]]`:
 
 ```tut:book:silent
 Json.toJson(Option("A string"))(optionWriter[String])
 ```
 
-and recursively searches for a `JsonWriter[String]`
-to use as the parameter to `optionWriter`:
+и затем рекурсивно ищет значение типа `JsonWriter[String]`, 
+которое он мог бы использовать в качестве параметра для `optionWriter`:
 
 ```tut:book:silent
 Json.toJson(Option("A string"))(optionWriter(stringWriter))
 ```
 
-In this way, implicit resolution becomes
-a search through the space of possible combinations
-of implicit definitions, to find
-a combination that summons a type class instance
-of the correct overall type.
+Таким образом, поиск одного определения для неявного параметра 
+становится поиском в среди возможных комбинаций таких определений 
+с целью подобрать одну комбинацию, 
+которая даст нужный итоговый тип.
 
 <div class="callout callout-warning">
-*Implicit Conversions*
+*Неявные преобразования*
 
-When you create a type class instance constructor
-using an `implicit def`,
-be sure to mark the parameters to the method
-as `implicit` parameters.
-Without this keyword, the compiler won't be able to
-fill in the parameters during implicit resolution.
+Когда вы создаете конструктор экземпляра тайпкласса, 
+используя `implicit def`, 
+обязательно пометьте параметры этого метода 
+как `implicit` параметры.
+Без этого ключевого слова компилятор 
+не сможет подобрать для них значения.
 
-`implicit` methods with non-`implicit` parameters
-form a different Scala pattern called an *implicit conversion*. 
-This is also different from the previous section on `Interface Syntax`, 
-because in that case the `JsonWriter` is an implicit class with `extension methods`. 
-Implicit conversion is an older programming pattern
-that is frowned upon in modern Scala code.
-Fortunately, the compiler will warn you when you do this.
-You have to manually enable implicit conversions
-by importing `scala.language.implicitConversions` in your file:
+`implicit`-методы в сочетании с явными параметрами, 
+тем временем, образуют в Scala другой паттерн — *неявное преобразование*. 
+Этот паттерн отличается и от описанного в предыдущем разделе *интерфейсного синтаксиса*, 
+поскольку в его случае `JsonWriter` являлся бы `implicit`-классом с *методами расширения*.
+Неявные преобразования — это устаревший паттерн, 
+и он не одобряется в современном коде Scala.
+К счастью, компилятор предупредит вас, если вы захотите им воспользоваться.
+Для его использования вам придётся вручную включить неявные преобразования, 
+импортировав `scala.language.implicitConversions` в ваш файл:
 
 ```tut:book:fail
 implicit def optionWriter[A]
