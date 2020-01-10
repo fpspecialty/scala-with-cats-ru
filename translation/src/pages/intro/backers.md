@@ -1,10 +1,10 @@
-### Backers {-}
+### Финансовая поддержка {-}
 
-We'd also like to extend very special thanks
-to our backers---fine people who helped
-fund the development of the book by buying a copy
-before we released it as open source.
-This book wouldn't exist without you:
+Мы также хотели бы выразить особую благодарность всем, 
+кто нас поддерживал — замечательным людям, 
+которые помогли финансировать работу над книгой, 
+купив её до того, как мы выпустили её с открытым исходным кодом.
+Без вас эта книга не могла бы существовать.
 
 A battle-hardened technologist,
 Aaron Pritzlaff,
@@ -176,4 +176,4 @@ Wojciech Langiewicz,
 Yann Ollivier (&commat;ya2o),
 Yoshiro Naito,
 zero323,
-and zeronone.
+и zeronone.
