@@ -1,62 +1,62 @@
-## Controlling Instance Selection
+## Управление выбором экземпляра
 
-When working with type classes
-we must consider two issues
-that control instance selection:
+При работе с тайпклассами 
+мы должны помнить о двух аспектах, 
+которые управляют выбором экземпляра:
 
- -  What is the relationship between
-    an instance defined on a type and its subtypes?
+ -  В каких отношениях находятся экземпляр, 
+    определенный для типа, и его подтипы?
 
-    For example, if we define a `JsonWriter[Option[Int]]`,
-    will the expression `Json.toJson(Some(1))` select this instance?
-    (Remember that `Some` is a subtype of `Option`).
+    Например, если мы определим `JsonWriter[Option[Int]]`, 
+    выберет ли выражение `Json.toJson(Some(1))` этот экземпляр?
+    (Помните, что `Some` является подтипом `Option`).
 
- -  How do we choose between type class instances
-    when there are many available?
+ -  Как нам выбирать между подходящими экземплярами тайпклассов, 
+    когда нам доступно сразу несколько?
 
-    What if we define two `JsonWriters` for `Person`?
-    When we write `Json.toJson(aPerson)`,
-    which instance is selected?
+    Что, если мы определим два экземпляра `JsonWriter` для `Person`?
+    Какой экземпляр будет выбран, 
+    если мы напишем `Json.toJson(aPerson)`?
 
-### Variance {#sec:variance}
+### Вариантность {#sec:variance}
 
-When we define type classes we can
-add variance annotations to the type parameter
-to affect the variance of the type class
-and the compiler's ability to select instances
-during implicit resolution.
+Когда мы определяем тайпклассы,
+мы можем добавлять аннотации вариантности к типовым параметрам,
+чтобы влиять на вариантность тайпкласса
+и способность компилятора подбирать экземпляры
+в процессе подстановки значений неявных параметров.
 
-To recap Essential Scala,
-variance relates to subtypes.
-We say that `B` is a subtype of `A`
-if we can use a value of type `B`
-anywhere we expect a value of type `A`.
+Как было изложено в книге Essential Scala,
+понятие вариантности связано с отношением подтипирования.
+Мы говорим, что `B` является подтипом `A`,
+если мы можем использовать значение типа `B` везде,
+где ожидается значение типа `A`.
 
-Co- and contravariance annotations arise
-when working with type constructors.
-For example, we denote covariance with a `+` symbol:
+Ковариантные и контравариантные аннотации
+встречаются при работе с конструкторами типов.
+Например, ковариантность обозначается символом `+`:
 
 ```scala
-trait F[+A] // the "+" means "covariant"
+trait F[+A] // «+» означает «ковариантный»
 ```
 
-**Covariance**
+**Ковариантность**
 
-Covariance means that the type `F[B]`
-is a subtype of the type `F[A]` if `B` is a subtype of `A`.
-This is useful for modelling many types,
-including collections like `List` and `Option`:
+Ковариантность означает, что тип `F[B]`
+является подтипом типа `F[A]`, если `B` является подтипом `A`.
+Это полезно для моделирования многих типов,
+включая коллекции, такие как `List` и `Option`:
 
 ```scala
 trait List[+A]
 trait Option[+A]
 ```
 
-The covariance of Scala collections allows
-us to substitute collections of one type for another in our code.
-For example, we can use a `List[Circle]`
-anywhere we expect a `List[Shape]` because
-`Circle` is a subtype of `Shape`:
+Ковариантность коллекций Scala позволяет нам
+подставлять коллекции одного типа вместо коллекций другого типа.
+Например, мы можем использовать `List[Circle]` везде,
+где мы ожидаем `List[Shape]`,
+потому что `Circle` является подтипом `Shape`:
 
 ```tut:book:silent
 sealed trait Shape
@@ -73,20 +73,19 @@ val circles: List[Circle] = null
 val shapes: List[Shape] = circles
 ```
 
-What about contravariance?
-We write contravariant type constructors
-with a `-` symbol like this:
+А как насчет контравариантности?
+Мы помечаем контравариантные конструкторы типов символом `-` следующим образом:
 
 ```scala
 trait F[-A]
 ```
 
-**Contravariance**
+**Контравариантность**
 
-Confusingly, contravariance means that the type `F[B]`
-is a subtype of `F[A]` if `A` is a subtype of `B`.
-This is useful for modelling types that represent processes,
-like our `JsonWriter` type class above:
+Сперва это может показаться странным, но контравариантность означает,
+что тип `F[B]` является подтипом `F[A]`, если `A` является подтипом `B`.
+Это полезно для моделирования типов, которые выражают обработку чего-либо, 
+как в случае тайпкласса `JsonWriter`:
 
 ```tut:book:invisible
 trait Json
@@ -98,12 +97,12 @@ trait JsonWriter[-A] {
 }
 ```
 
-Let's unpack this a bit further.
-Remember that variance is all about
-the ability to substitute one value for another.
-Consider a scenario where we have two values,
-one of type `Shape` and one of type `Circle`,
-and two `JsonWriters`, one for `Shape` and one for `Circle`:
+Давайте разберём этот случай подробнее.
+Помните: смысл вариантности состоит в возможности 
+подставить одно значение вместо другого.
+Рассмотрим сценарий, в котором у нас есть два значения: 
+типа `Shape` и типа `Circle`; 
+и два экземпляра `JsonWriter`: один для `Shape` и один для `Circle`:
 
 ```scala
 val shape: Shape = ???
@@ -126,41 +125,41 @@ def format[A](value: A, writer: JsonWriter[A]): Json =
   writer.write(value)
 ```
 
-Now ask yourself the question:
-"Which combinations of value and writer can I pass to `format`?"
-We can combine `circle` with either writer
-because all `Circles` are `Shapes`.
-Conversely, we can't combine `shape` with `circleWriter`
-because not all `Shapes` are `Circles`.
+Теперь задайте себе вопрос: 
+«Какие комбинации значений и `JsonWriter` я могу передать в `format`?»
+Мы можем комбинировать `circle` с любым `JsonWriter`, 
+потому что все круги (`Circle`) являются формами (`Shape`).
+И наоборот, мы не можем комбинировать `shape` с `circleWriter`, 
+потому что не все формы являются кругами.
 
-This relationship is what we formally model using contravariance.
-`JsonWriter[Shape]` is a subtype of `JsonWriter[Circle]`
-because `Circle` is a subtype of `Shape`.
-This means we can use `shapeWriter`
-anywhere we expect to see a `JsonWriter[Circle]`.
+Для формального описания таких отношений мы и используем контравариантность.
+`JsonWriter[Shape]` является подтипом `JsonWriter[Circle]`, 
+потому что `Circle` является подтипом `Shape`.
+Это означает, что мы можем использовать `shapeWriter` везде, 
+где ожидается `JsonWriter[Circle] `.
 
-**Invariance**
+**Инвариантность**
 
-Invariance is actually the easiest situation to describe.
-It's what we get when we don't write a `+` or `-`
-in a type constructor:
+На самом деле, описать инвариантность проще всего.
+Мы устанавливаем такое отношение всегда,
+когда не указываем `+` или `-` в конструкторе типа:
 
 ```scala
 trait F[A]
 ```
 
-This means the types `F[A]` and `F[B]`
-are never subtypes of one another,
-no matter what the relationship between `A` and `B`.
-This is the default semantics for Scala type constructors.
+Это означает, что типы `F[A]` и `F[B]` 
+никогда не являются подтипами друг друга, 
+независимо от отношений между `A` и` B`.
+Конструкторы типов в Scala имеют такую семантику по умолчанию.
 
-When the compiler searches for an implicit
-it looks for one matching the type *or subtype*.
-Thus we can use variance annotations
-to control type class instance selection to some extent.
+Когда компилятор подбирает значения для неявных параметров, 
+он ищет такое, которое соответствует нужному типу *или его подтипу*.
+Таким образом, мы можем использовать аннотации вариантности для того, 
+чтобы в некоторой степени влиять на выбор экземпляра тайпкласса.
 
-There are two issues that tend to arise.
-Let's imagine we have an algebraic data type like:
+Итак, есть два основных вопроса, возникающих в связи с вариантностью.
+Представим, что у нас есть вот такой алгебраический тип данных:
 
 ```tut:book:silent
 sealed trait A
@@ -168,39 +167,38 @@ final case object B extends A
 final case object C extends A
 ```
 
-The issues are:
+Вопросы:
 
- 1. Will an instance defined on a supertype be selected
-    if one is available?
-    For example, can we define an instance for `A`
-    and have it work for values of type `B` and `C`?
+ 1. Если существует экземпляр для супертипа, то будет ли он выбран?
+    Например, можем ли мы определить экземпляр для `A` так, 
+    чтобы он работал для значений типа `B` и `C`?
 
- 2. Will an instance for a subtype be selected
-    in preference to that of a supertype.
-    For instance, if we define an instance for `A` and `B`,
-    and we have a value of type `B`,
-    will the instance for `B` be selected in preference to `A`?
+ 2. Будет ли экземпляр для подтипа 
+    выбран вместо экземпляра для супертипа?
+    Например, если мы определим экземпляры как для `A`, так и для `B`, 
+    и у нас будет значение типа `B`, 
+    будет ли предпочтён экземпляр для `B`?
 
-It turns out we can't have both at once.
-The three choices give us behaviour as follows:
+Оказывается, мы можем выбрать только одну из этих двух опций.
+Три возможных выбора вариантности обеспечивают нам следующее поведение:
 
------------------------------------------------------------------------
-Type Class Variance             Invariant   Covariant   Contravariant
-------------------------------- ----------- ----------- ---------------
-Supertype instance used?        No          No          Yes
+-----------------------------------------------------------------------------------------------
+Вариантность тайпкласса                         Инвариантный   Ковариантный   Контравариантный
+----------------------------------------------- -------------- -------------- -----------------
+Будет ли использован экземпляр для супертипа?   Нет            Нет            Да 
 
-More specific type preferred?   No          Yes         No
------------------------------------------------------------------------
+Будет ли предпочтён более конкретный тип?       Нет            Да             Нет
+-----------------------------------------------------------------------------------------------
 
-It's clear there is no perfect system.
-Cats generally prefers to use invariant type classes.
-This allows us to specify
-more specific instances for subtypes if we want.
-It does mean that if we have, for example,
-a value of type `Some[Int]`,
-our type class instance for `Option` will not be used.
-We can solve this problem with
-a type annotation like `Some(1) : Option[Int]`
-or by using "smart constructors"
-like the `Option.apply`, `Option.empty`, `some`, and `none` methods
-we saw in Section [@sec:type-classes:comparing-options].
+Очевидно, что идеальной системы не существует.
+В Cats отдаётся предпочтение инвариантным тайпклассам.
+Такой выбор позволяет нам, при желании, 
+указать более конкретные экземпляры для подтипов.
+Из этого следует, что если у нас есть, к примеру, 
+значение типа `Some[Int]`, 
+то экземпляр для `Option` не подойдёт и не будет использован.
+Мы можем решить эту проблему, 
+явно указав тип (например, `Some(1): Option[Int]`) 
+или с помощью *смарт-конструкторов* — 
+методов вроде `Option.apply`, `Option.empty`, `some` и `none`, 
+с которыми мы познакомились в разделе [@sec:type-classes:comparing-options].
