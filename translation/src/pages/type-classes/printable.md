@@ -1,32 +1,33 @@
-## Exercise: Printable Library
+## Упражнение: библиотека Printable
 
-Scala provides a `toString` method
-to let us convert any value to a `String`.
-However, this method comes with a few disadvantages:
-it is implemented for *every* type in the language,
-many implementations are of limited use,
-and we can't opt-in to specific implementations for specific types.
+Scala предоставляет метод `toString`, 
+который позволяет нам преобразовывать любое значение в `String`.
+Однако у этого метода есть недостатки: 
+он реализован для *каждого* типа в языке, 
+и многие его реализации имеют очень ограниченное применение, 
+а мы не можем просто так заменить его стандартную реализацию в нужных нам типах
+на какую-либо другую.
 
-Let's define a `Printable` type class to work around these problems:
+Давайте определим тайпкласс `Printable`, чтобы обойти эти проблемы:
 
- 1. Define a type class `Printable[A]` containing a single method `format`.
-    `format` should accept a value of type `A` and return a `String`.
+ 1. Определите класс типов `Printable[A]`, содержащий единственный метод — `format`.
+    `format` должен принимать значение типа `A` и возвращать `String`.
 
- 2. Create an object `PrintableInstances`
-    containing instances of `Printable` for `String` and `Int`.
+ 2. Создайте объект `PrintableInstances`, 
+    содержащий экземпляры `Printable` для `String` и `Int`.
 
- 3. Define an object `Printable` with two generic interface methods:
+ 3. Определите объект `Printable` с двумя обобщёнными интерфейсными методами:
 
-    `format` accepts a value of type `A`
-    and a `Printable` of the corresponding type.
-    It uses the relevant `Printable` to convert the `A` to a `String`.
+    `format` — принимает значение типа `A` 
+    и экземпляр `Printable` для соответствующего типа.
+    Он использует `Printable` для преобразования `A` в `String`.
 
-    `print` accepts the same parameters as `format` and returns `Unit`.
-    It prints the `A` value to the console using `println`.
+    `print` — принимает те же параметры, что и `format`, но возвращает `Unit`.
+    Он выводит значение `A` в консоль, используя `println`.
 
 <div class="solution">
-These steps define the three main components of our type class.
-First we define `Printable`---the *type class* itself:
+Следующие шаги определяют три основных компонента нашего тайпкласса:
+Сначала определяем `Printable` — сам *тайпкласс*:
 
 ```tut:book:silent
 trait Printable[A] {
@@ -34,8 +35,8 @@ trait Printable[A] {
 }
 ```
 
-Then we define some default *instances* of `Printable`
-and package them in `PrintableInstances`:
+Затем добавляем некоторые предопределённые *экземпляры* `Printable` 
+и складываем их в `PrintableInstances`:
 
 ```tut:book:silent
 object PrintableInstances {
@@ -49,7 +50,7 @@ object PrintableInstances {
 }
 ```
 
-Finally we define an *interface* object, `Printable`:
+И, наконец, определяем *интерфейсный объект* `Printable`:
 
 ```tut:book:silent
 object Printable {
@@ -62,46 +63,46 @@ object Printable {
 ```
 </div>
 
-**Using the Library**
+**Использование библиотеки**
 
-The code above forms a general purpose printing library
-that we can use in multiple applications.
-Let's define an "application" now that uses the library.
+В результате выполнения предыдущей задачи мы получили универсальную библиотеку 
+для отображения в консоли, которую мы можем использовать в различных приложениях.
+Теперь давайте реализуем приложение, которое использует эту библиотеку.
 
-First we'll define a data type to represent a well-known type of furry animal:
+Для начала определим тип, представляющий всем известное пушистое животное:
 
 ```scala
 final case class Cat(name: String, age: Int, color: String)
 ```
 
-Next we'll create an implementation of `Printable` for `Cat`
-that returns content in the following format:
+Затем создадим реализацию `Printable` для `Cat`, 
+которая возвращает строку следующего формата:
 
 ```ruby
 NAME is a AGE year-old COLOR cat.
 ```
 
-Finally, use the type class on the console or in a short demo app:
-create a `Cat` and print it to the console:
+Наконец, воспользуемся нашим тайпклассом в консоли или в небольшом демо-приложении: 
+создадим `Cat` и выведем его в консоль:
 
 ```scala
-// Define a cat:
+// Определение кота:
 val cat = Cat(/* ... */)
 
-// Print the cat!
+// Печать кота!
 ```
 
 <div class="solution">
-This is a standard use of the type class pattern.
-First we define a set of custom data types for our application:
+Это совершенно стандартное применение паттерна «тайпкласс».
+Сначала определяем пользовательские типы данных для нашего приложения:
 
 ```tut:book:silent
 final case class Cat(name: String, age: Int, color: String)
 ```
 
-Then we define type class instances for the types we care about.
-These either go into the companion object of `Cat`
-or a separate object to act as a namespace:
+Затем определяем экземпляры тайпклассов для нужных нам типов.
+Мы разместим их либо в объекте-компаньоне `Cat`, 
+либо в отдельном объекте, выступающем в качестве пространства имен:
 
 ```tut:book:silent
 import PrintableInstances._
@@ -116,12 +117,12 @@ implicit val catPrintable = new Printable[Cat] {
 }
 ```
 
-Finally, we use the type class by
-bringing the relevant instances into scope
-and using interface object/syntax.
-If we defined the instances in companion objects
-Scala brings them into scope for us automatically.
-Otherwise we use an `import` to access them:
+Наконец, воспользуемся тайпклассом, 
+вводя соответствующие экземпляры в область видимости 
+и используя *интерфейсный объект* или *интерфейсный синтаксис*.
+Если мы определили экземпляры в объекте-компаньоне, 
+Scala автоматически добавит их в область видимости.
+В противном случае используем `import`, чтобы ими воспользоваться:
 
 ```tut:book
 val cat = Cat("Garfield", 38, "ginger and black")
@@ -130,29 +131,29 @@ Printable.print(cat)
 ```
 </div>
 
-**Better Syntax**
+**Более подходящий синтаксис**
 
-Let's make our printing library easier to use
-by defining some extension methods to provide better syntax:
+Давайте сделаем нашу библиотеку ещё более простой в использовании, 
+определив некоторые методы расширения для более удобного синтаксиса:
 
- 1. Create an object called `PrintableSyntax`.
+ 1. Создайте объект с именем `PrintableSyntax`.
 
- 2. Inside `PrintableSyntax` define an `implicit class PrintableOps[A]`
-    to wrap up a value of type `A`.
+ 2. Внутри `PrintableSyntax` определите `implicit class PrintableOps[A]`, 
+    который будет оборачивать значение типа `A`.
 
- 3. In `PrintableOps` define the following methods:
+ 3. В `PrintableOps` определите следующие методы:
 
-     - `format` accepts an implicit `Printable[A]`
-       and returns a `String` representation of the wrapped `A`;
+     - `format` — принимает неявный параметр `Printable[A]` 
+       и возвращает строковое представление обернутого `A`;
 
-     - `print` accepts an implicit `Printable[A]` and returns `Unit`.
-       It prints the wrapped `A` to the console.
+     - `print` — принимает неявный параметр `Printable[A]` и возвращает `Unit`.
+       Он выводит `A` в консоль.
 
- 4. Use the extension methods to print the example `Cat`
-    you created in the previous exercise.
+ 4. Используйте методы расширения, чтобы напечатать значение типа `Cat`, 
+    которое вы создали в предыдущем упражнении.
 
 <div class="solution">
-First we define an `implicit class` containing our extension methods:
+Сначала мы определяем `implicit`-класс, содержащий нужные нам методы расширения:
 
 ```tut:book:silent
 object PrintableSyntax {
@@ -166,9 +167,9 @@ object PrintableSyntax {
 }
 ```
 
-With `PrintableOps` in scope,
-we can call the imaginary `print` and `format` methods
-on any value for which Scala can locate an implicit instance of `Printable`:
+И теперь, при условии, что `PrintableOps` будет доступен в области видимости, 
+мы сможем вызывать выдуманные нами методы `print` и `format` для любого значения, 
+для которого Scala может найти экземпляр `Printable`:
 
 ```tut:book:silent
 import PrintableSyntax._
@@ -178,8 +179,8 @@ import PrintableSyntax._
 Cat("Garfield", 38, "ginger and black").print
 ```
 
-We get a compile error if we haven't defined an instance of `Printable`
-for the relevant type:
+А если для некоторого типа экземпляр `Printable` не будет определён, 
+то мы получим ошибку компиляции:
 
 ```tut:book:silent
 import java.util.Date
