@@ -1,85 +1,86 @@
-## Example: Eq
+## Пример: Eq
 
-We will finish off this chapter by looking at another useful type class:
+В завершение этой главы изучим еще один полезный тайпкласс: 
 [`cats.Eq`][cats.kernel.Eq].
-`Eq` is designed to support *type-safe equality*
-and address annoyances using Scala's built-in `==` operator.
+`Eq` разработан для поддержки *типобезопасного равенства* 
+и устранения неприятностей, которые доставляет встроенный в Scala оператор `==`.
 
-Almost every Scala developer has written code like this before:
+Почти каждый Scala-разработчик в своё время писал код вроде такого:
 
 ```tut:book
 List(1, 2, 3).map(Option(_)).filter(item => item == 1)
 ```
 
-Ok, many of you won't have made such a simple mistake as this,
-but the principle is sound.
-The predicate in the `filter` clause always returns `false`
-because it is comparing an `Int` to an `Option[Int]`.
+Допустим, многие из вас не допустили бы такой простой ошибки, как эта, 
+но проблема остаётся актуальной.
+Предикат в `filter` всегда возвращает `false`, 
+потому что он сравнивает `Int` с `Option[Int]`.
 
-This is programmer error---we
-should have compared `item` to `Some(1)` instead of `1`.
-However, it's not technically a type error because
-`==` works for any pair of objects, no matter what types we compare.
-`Eq` is designed to add some type safety to equality checks
-and work around this problem.
+Это является ошибкой программиста — 
+мы должны были сравнить `item` с `Some(1)`, а не с `1`.
+Технически это не должно считаться ошибкой типа, 
+потому что `==` предназначен для сравнения пары любых объектов, независимо от их типа.
+`Eq` разработан для того, чтобы на уровне типов 
+добавить безопасность в проверки на равенство, 
+и тем самым обойти эту проблему.
 
-### Equality, Liberty, and Fraternity
+### Равенство, Свобода, Братство
 
-We can use `Eq` to define type-safe equality
-between instances of any given type:
+Мы можем использовать `Eq`, чтобы определить типобезопасное равенство 
+между любыми значениями некоторого типа:
 
 ```scala
 package cats
 
 trait Eq[A] {
   def eqv(a: A, b: A): Boolean
-  // other concrete methods based on eqv...
+  // и другие методы, основанные на eqv ...
 }
 ```
 
-The interface syntax, defined in [`cats.syntax.eq`][cats.syntax.eq],
-provides two methods for performing equality checks
-provided there is an instance `Eq[A]` in scope:
+Интерфейсный синтаксис, определенный в [`cats.syntax.eq`][cats.syntax.eq], 
+предоставляет два метода для проверки на равенство 
+(при условии, что в области видимости есть соответствующий экземпляр `Eq[A]`):
 
- - `===` compares two objects for equality;
- - `=!=` compares two objects for inequality.
+ - `===` сравнивает два объекта на равенство;
+ - `=!=` сравнивает два объекта на неравенство.
 
-### Comparing Ints
+### Сравниваем целые числа
 
-Let's look at a few examples. First we import the type class:
+Давайте рассмотрим несколько примеров. Сначала импортируем тайпкласс:
 
 ```tut:book:silent
 import cats.Eq
 ```
 
-Now let's grab an instance for `Int`:
+Теперь возьмем экземпляр для `Int`:
 
 ```tut:book:silent
-import cats.instances.int._ // for Eq
+import cats.instances.int._ // для Eq
 
 val eqInt = Eq[Int]
 ```
 
-We can use `eqInt` directly to test for equality:
+Для проверки на равенство мы можем непосредственно обратиться к `eqInt`:
 
 ```tut:book
 eqInt.eqv(123, 123)
 eqInt.eqv(123, 234)
 ```
 
-Unlike Scala's `==` method,
-if we try to compare objects of different types using `eqv`
-we get a compile error:
+В отличие от встроенного в Scala метода `==`, 
+попытка сравнения объектов разного типа при помощи `eqv` 
+приведёт к ошибке компиляции:
 
 ```tut:book:fail
 eqInt.eqv(123, "234")
 ```
 
-We can also import the interface syntax in [`cats.syntax.eq`][cats.syntax.eq]
-to use the `===` and `=!=` methods:
+Мы также можем импортировать интерфейсный синтаксис из [`cats.syntax.eq`][cats.syntax.eq], 
+чтобы использовать методы `===` и `=!=`:
 
 ```tut:book:silent
-import cats.syntax.eq._ // for === and =!=
+import cats.syntax.eq._ // для === and =!=
 ```
 
 ```tut:book
@@ -87,49 +88,49 @@ import cats.syntax.eq._ // for === and =!=
 123 =!= 234
 ```
 
-Again, comparing values of different types causes a compiler error:
+Опять же, сравнение значений разных типов приведёт к ошибке компиляции:
 
 ```tut:book:fail
 123 === "123"
 ```
 
-### Comparing Options {#sec:type-classes:comparing-options}
+### Сравниваем Option {#sec:type-classes:comparing-options}
 
-Now for a more interesting example---`Option[Int]`.
-To compare values of type `Option[Int]`
-we need to import instances of `Eq` for `Option` as well as `Int`:
+Теперь рассмотрим более интересный пример — `Option[Int]`.
+Для сравнения значений типа `Option[Int]` 
+нам необходимо импортировать экземпляры `Eq` как для `Option`, так и для `Int`:
 
 ```tut:book:silent
-import cats.instances.int._    // for Eq
-import cats.instances.option._ // for Eq
+import cats.instances.int._    // для Eq
+import cats.instances.option._ // для Eq
 ```
 
-Now we can try some comparisons:
+Теперь можем попробовать сравнить:
 
 ```tut:fail:book
 Some(1) === None
 ```
 
-We have received an error here because the types don't quite match up.
-We have `Eq` instances in scope for `Int` and `Option[Int]`
-but the values we are comparing are of type `Some[Int]`.
-To fix the issue we have to re-type the arguments as `Option[Int]`:
+Мы получим ошибку, потому что типы не совсем совпадают.
+В области видимости нам доступны экземпляры `Eq` для `Int` и для `Option[Int]`, 
+но значения, которые мы сравниваем, имеют типы `Some[Int]` и `None`.
+Чтобы решить эту проблему, придётся явно указать тип аргументов — `Option[Int]`:
 
 ```tut:book
 (Some(1) : Option[Int]) === (None : Option[Int])
 ```
 
-We can do this in a friendlier fashion using
-the `Option.apply` and `Option.empty` methods from the standard library:
+Мы можем сделать это и более лаконичным способом, 
+используя методы `Option.apply` и` Option.empty` из стандартной библиотеки:
 
 ```tut:book
 Option(1) === Option.empty[Int]
 ```
 
-or using special syntax from [`cats.syntax.option`][cats.syntax.option]:
+или используя специальный синтаксис из [`cats.syntax.option`][cats.syntax.option]:
 
 ```tut:book:silent
-import cats.syntax.option._ // for some and none
+import cats.syntax.option._ // для some и none
 ```
 
 ```tut:book
@@ -137,14 +138,15 @@ import cats.syntax.option._ // for some and none
 1.some =!= none[Int]
 ```
 
-### Comparing Custom Types
+### Сравнение пользовательских типов
 
-We can define our own instances of `Eq` using the `Eq.instance` method,
-which accepts a function of type `(A, A) => Boolean` and returns an `Eq[A]`:
+Мы можем определить наши собственные экземпляры `Eq`, 
+используя метод `Eq.instance`, 
+который принимает функцию типа `(A, A) => Boolean` и возвращает `Eq[A]`:
 
 ```tut:book:silent
 import java.util.Date
-import cats.instances.long._ // for Eq
+import cats.instances.long._ // для Eq
 ```
 
 ```tut:book:silent
@@ -155,8 +157,8 @@ implicit val dateEq: Eq[Date] =
 ```
 
 ```tut:book:silent
-val x = new Date() // now
-val y = new Date() // a bit later than now
+val x = new Date() // сейчас
+val y = new Date() // мгновение спустя
 ```
 
 ```tut:book
@@ -164,15 +166,15 @@ x === x
 x === y
 ```
 
-### Exercise: Equality, Liberty, and Felinity
+### Упражнение: Равенство, Свобода, Котики
 
-Implement an instance of `Eq` for our running `Cat` example:
+Реализуйте экземпляр `Eq` для нашего типа `Cat`:
 
 ```tut:book:silent
 final case class Cat(name: String, age: Int, color: String)
 ```
 
-Use this to compare the following pairs of objects for equality and inequality:
+Используйте его, чтобы сравнить данные пары объектов на равенство и неравенство:
 
 ```tut:book:silent
 val cat1 = Cat("Garfield",   38, "orange and black")
@@ -183,28 +185,27 @@ val optionCat2 = Option.empty[Cat]
 ```
 
 <div class="solution">
-First we need our Cats imports.
-In this exercise we'll be using the `Eq` type class
-and the `Eq` interface syntax.
-We'll bring instances of `Eq` into scope as we need them below:
+Сначала нам нужно импортировать Cats.
+В этом упражнении мы будем использовать тайпкласс `Eq` 
+и интерфейсный синтаксис `Eq`:
 
 ```tut:book:silent
 import cats.Eq
-import cats.syntax.eq._ // for ===
+import cats.syntax.eq._ // для ===
 ```
 
-Our `Cat` class is the same as ever:
+Наш класс `Cat` тот же, что и прежде:
 
 ```scala
 final case class Cat(name: String, age: Int, color: String)
 ```
 
-We bring the `Eq` instances for `Int` and `String`
-into scope for the implementation of `Eq[Cat]`:
+Теперь добавим в область видимости экземпляры `Eq` для `Int` и `String`, 
+чтобы на их основе реализовать `Eq[Cat]`:
 
 ```tut:book:silent
-import cats.instances.int._    // for Eq
-import cats.instances.string._ // for Eq
+import cats.instances.int._    // для Eq
+import cats.instances.string._ // для Eq
 
 implicit val catEqual: Eq[Cat] =
   Eq.instance[Cat] { (cat1, cat2) =>
@@ -214,7 +215,7 @@ implicit val catEqual: Eq[Cat] =
   }
 ```
 
-Finally, we test things out in a sample application:
+Наконец, проверим всё это в небольшом приложении:
 
 ```tut:book
 val cat1 = Cat("Garfield",   38, "orange and black")
@@ -225,7 +226,7 @@ cat1 =!= cat2
 ```
 
 ```tut:book:silent
-import cats.instances.option._ // for Eq
+import cats.instances.option._ // для Eq
 ```
 
 ```tut:book
