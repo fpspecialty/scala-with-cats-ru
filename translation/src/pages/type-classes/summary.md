@@ -1,31 +1,30 @@
-## Summary
+## Итог
 
-In this chapter we took a first look at type classes.
-We implemented our own `Printable` type class using plain Scala
-before looking at two examples from Cats---`Show` and `Eq`.
+В этой главе мы познакомились с тайпклассами.
+Мы реализовали наш собственный тайпкласс `Printable`, используя чистую Scala, 
+а уже после этого рассмотрели два примера из Cats: `Show` и `Eq`.
 
-We have now seen the general patterns in Cats type classes:
+Теперь нам известны общие закономерности тайпклассов в Cats:
 
- - The type classes themselves are generic traits
-   in the [`cats`][cats.package] package.
+ - Сами тайпклассы являются обобщёнными трейтами 
+   в пакете [`cats`][cats.package].
 
- - Each type class has a companion object with,
-   an `apply` method for materializing instances,
-   one or more *construction* methods for creating instances,
-   and a collection of other relevant helper methods.
+ - Каждый тайпкласс имеет объект-компаньон 
+   с методом `apply` для «материализации» экземпляров, 
+   одним или несколькими методами для создания собственных экземпляров 
+   и набором прочих вспомогательных методов.
 
- - Default instances are provided via objects
-   in the [`cats.instances`][cats.instances] package,
-   and are organized by parameter type rather than by type class.
+ - Предопределённые экземпляры содержатся в объектах 
+   в пакете [`cats.instances`][cats.instances] 
+   и сгруппированы по типу, для которого определён экземпляр, а не по тайпклассу.
 
- - Many type classes have *syntax*
-   provided via the [`cats.syntax`][cats.syntax] package.
+ - Для многих тайпклассов существует *синтаксис*, предоставляемый в пакете [`cats.syntax`][cats.syntax].
 
-In the remaining chapters of Part I
-we will look at several broad and powerful type classes---`Semigroup`,
-`Monoid`, `Functor`, `Monad`, `Semigroupal`, `Applicative`, `Traverse`, and more.
-In each case we will learn what functionality the type class provides,
-the formal rules it follows, and how it is implemented in Cats.
-Many of these type classes are more abstract than `Show` or `Eq`.
-While this makes them harder to learn,
-it makes them far more useful for solving general problems in our code.
+В оставшихся главах Части I 
+мы рассмотрим несколько обширных и мощных тайпклассов: 
+`Semigroup`, `Monoid`, `Functor`, `Monad`, `Semigroupal`, `Applicative`, `Traverse` и другие.
+Про каждый тайпкласс мы узнаем, какие функциональные возможности он предоставляет, 
+каким законам он подчиняется, и как он реализован в Cats.
+Многие из этих тайпклассов значительно более абстрактны, чем `Show` или `Eq`.
+С одной стороны, это делает их освоение трудным, 
+а с другой — делает их гораздо более полезными для решения общих проблем.
