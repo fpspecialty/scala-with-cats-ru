@@ -1,45 +1,45 @@
-## Anatomy of a Type Class
+## Анатомия Тайпклассов
 
-There are three important components to the type class pattern:
-the *type class* itself,
-*instances* for particular types,
-and the *interface* methods that we expose to users.
+Паттерн «тайпкласс» состоит из трёх важных компонентов: 
+самого *тайпкласса*, 
+*экземпляров (instances)* 
+и интерфейсных методов, доступных пользователю.
 
-### The Type Class
+### Тайпкласс
 
-A *type class* is an interface or API
-that represents some functionality we want to implement.
-In Cats a type class is represented by a trait with at least one type parameter.
-For example, we can represent generic "serialize to JSON" behaviour
-as follows:
+*Тайпкласс* — это интерфейс или API, 
+отражающий некоторую функциональность, которую мы хотим реализовать.
+В Cats тайпклассы представлены как трейты, 
+у которых есть как минимум один типовой параметр. 
+Например, возможность «сериализации в JSON» можно представить следующим образом:
 
 ```tut:book:silent
-// Define a very simple JSON AST
+// Упрощённое определение AST JSON
 sealed trait Json
 final case class JsObject(get: Map[String, Json]) extends Json
 final case class JsString(get: String) extends Json
 final case class JsNumber(get: Double) extends Json
 case object JsNull extends Json
 
-// The "serialize to JSON" behaviour is encoded in this trait
+// Поведение, связанное с сериализацией в JSON, описывается этим trait
 trait JsonWriter[A] {
   def write(value: A): Json
 }
 ```
 
-`JsonWriter` is our type class in this example,
-with `Json` and its subtypes providing supporting code.
+`JsonWriter` в этом примере является тайпклассом,
+а `Json` и его подтипы играют вспомогательную роль.
 
-### Type Class Instances
+### Экземпляры тайпклассов
 
-The *instances* of a type class
-provide implementations for the types we care about,
-including types from the Scala standard library
-and types from our domain model.
+*Экземпляры* тайпкласса 
+предоставляют реализацию для нужных нам типов,
+включая типы из стандартной библиотеки Scala
+и типы, описывающие нашу предметную область.
 
-In Scala we define instances by creating
-concrete implementations of the type class
-and tagging them with the `implicit` keyword:
+В Scala мы определяем экземпляры, создавая
+конкретные реализации тайпкласса
+и помечая их ключевым словом `implicit`:
 
 ```tut:book:silent
 final case class Person(name: String, email: String)
@@ -60,23 +60,24 @@ object JsonWriterInstances {
         ))
     }
 
-  // etc...
+  // и т.д.
 }
 ```
 
-### Type Class Interfaces
+### Интерфейсы тайпклассов
 
-A type class *interface* is any functionality we expose to users.
-Interfaces are generic methods that accept
-instances of the type class as implicit parameters.
+Любая функциональность, которую мы предоставяем пользователям 
+с помощью тайпкласса — это его *интерфейс*.
+Интерфейсами являются обобщённые методы, которые принимают
+экземпляры тайпкласса в качестве неявных (implicit) параметров.
 
-There are two common ways of specifying an interface:
-*Interface Objects* and *Interface Syntax*.
+Существуют два распространенных способа определить интерфейс:
+*Интерфейсные объекты* (interface Objects) и *Интерфейсный синтаксис* (interface Syntax).
 
-**Interface Objects**
+**Интерфейсные объекты**
 
-The simplest way of creating an interface
-is to place methods in a singleton object:
+Самый простой способ определить интерфейс —
+это разместить методы в объекте-синглтоне:
 
 ```tut:book:silent
 object Json {
@@ -85,8 +86,8 @@ object Json {
 }
 ```
 
-To use this object, we import any type class instances we care about
-and call the relevant method:
+Чтобы использовать этот объект, мы импортируем нужные нам экземпляры тайпклассов
+и вызываем соответствующий метод:
 
 ```tut:book:silent
 import JsonWriterInstances._
@@ -96,24 +97,23 @@ import JsonWriterInstances._
 Json.toJson(Person("Dave", "dave@example.com"))
 ```
 
-The compiler spots that we've called the `toJson` method
-without providing the implicit parameters.
-It tries to fix this by searching for type class instances
-of the relevant types and inserting them at the call site:
+Компилятор обнаруживает, что мы вызываем метод `toJson`
+не предоставляя неявные параметры.
+Он пытается исправить это, выполняя поиск экземпляров тайпкласса
+для соответствующих типов и подставляя их в вызов:
 
 ```tut:book:silent
 Json.toJson(Person("Dave", "dave@example.com"))(personWriter)
 ```
+**Интерфейсный синтаксис**
 
-**Interface Syntax**
+В качестве альтернативы мы можем использовать *методы расширения*,
+чтобы дополнить существующие типы интерфейсными методами [^pimping].
+В Cats это называется *«синтаксисом»* тайпкласса:
 
-We can alternatively use *extension methods* to
-extend existing types with interface methods[^pimping].
-Cats refers to this as *"syntax"* for the type class:
-
-[^pimping]: You may occasionally see extension methods
-referred to as "type enrichment" or "pimping".
-These are older terms that we don't use anymore.
+[^ pimping]: иногда методы расширения
+упоминаются как «обогащение типа» (type enrichment) или «pimping».
+Это устаревшие термины, мы их больше не используем.
 
 ```tut:book:silent
 object JsonSyntax {
@@ -124,8 +124,8 @@ object JsonSyntax {
 }
 ```
 
-We use interface syntax by importing it
-alongside the instances for the types we need:
+Чтобы использовать интерфейсный синтаксис, мы явно импортируем его, 
+помимо экземпляров для нужных нам типов:
 
 ```tut:book:silent
 import JsonWriterInstances._
@@ -136,26 +136,26 @@ import JsonSyntax._
 Person("Dave", "dave@example.com").toJson
 ```
 
-Again, the compiler searches for candidates
-for the implicit parameters and fills them in for us:
+Подобно предыдущему примеру, компилятор ищет кандидатов
+на роль неявных параметров и подставляет их за нас:
 
 ```tut:book:silent
 Person("Dave", "dave@example.com").toJson(personWriter)
 ```
 
-**The *implicitly* Method**
+**Метод _implicitly_**
 
-The Scala standard library provides
-a generic type class interface called `implicitly`.
-Its definition is very simple:
+Стандартная библиотека Scala предоставляет
+обобщённый интерфейс тайпкласса — `implicitly`.
+Он определён очень просто:
 
 ```scala
 def implicitly[A](implicit value: A): A =
   value
 ```
 
-We can use `implicitly` to summon any value from implicit scope.
-We provide the type we want and `implicitly` does the rest:
+Мы можем использовать `implicitly`, чтобы затребовать любое значение из неявного контекста (implicit scope).
+От нас требуется предоставить желаемый тип, а `implicitly` сделает все остальное:
 
 ```tut:book
 import JsonWriterInstances._
@@ -163,8 +163,8 @@ import JsonWriterInstances._
 implicitly[JsonWriter[String]]
 ```
 
-Most type classes in Cats provide other means to summon instances.
-However, `implicitly` is a good fallback for debugging purposes.
-We can insert a call to `implicitly` within the general flow of our code
-to ensure the compiler can find an instance of a type class
-and ensure that there are no ambiguous implicit errors.
+Большинство тайпклассов в Cats предоставляют другие способы затребовать экземпляры.
+Однако `implicitly` хорош как запасной, «отладочный» приём.
+Мы можем вставлять вызов `implicitly` в код, над которым работаем,
+чтобы убедиться, что компилятор может найти экземпляр тайпкласса
+и не происходит ошибок, связанных с неоднозначно определёнными значениями неявных параметров.
