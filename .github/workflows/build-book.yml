@@ -23,7 +23,7 @@ jobs:
         ACTIONS_DEPLOY_KEY: ${{secrets.DEPLOY_TO_PAGES_KEY}}
         PUBLISH_DIR: ./dist_pages
         PUBLISH_BRANCH: master
-        EXTERNAL_REPOSITORY: fpspecialty/read-scala-with-cats-ru
+        EXTERNAL_REPOSITORY: fpspecialty/scala-with-cats
       with:
         emptyCommits: false
         forceOrphan: true
