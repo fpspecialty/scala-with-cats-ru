@@ -18,7 +18,7 @@ import cats.syntax.semigroup._ // для |+|
 ```
 
 ```tut:book
-"Scala" |+| " с " |+| "Cats"
+"Scala" |+| " with " |+| "Cats"
 ```
 
 С правильными экземплярами в области видимости,
