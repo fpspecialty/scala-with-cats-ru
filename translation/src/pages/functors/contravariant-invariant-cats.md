@@ -1,10 +1,10 @@
-## *Contravariant* and Invariant in Cats
+## *Контравариантность* и Инвариантность в Cats
 
-Let's look at the implementation of
-contravariant and invariant functors in Cats,
-provided by the [`cats.Contravariant`][cats.Contravariant]
-and [`cats.Invariant`][cats.Invariant] type classes.
-Here's a simplified version of the code:
+Давайте рассмотрим реализацию
+контравариантных и инвариантных функторов в Cats,
+представляемые тайпклассами [`cats.Contravariant`][cats.Contravariant]
+и [`cats.Invariant`][cats.Invariant].
+Ниже представлена упрощённая версия кода:
 
 ```tut:book:invisible
 import scala.language.higherKinds
@@ -20,13 +20,13 @@ trait Invariant[F[_]] {
 }
 ```
 
-### Contravariant in Cats
+### Контравариантность в Cats
 
-We can summon instances of `Contravariant`
-using the `Contravariant.apply` method.
-Cats provides instances for data types that consume parameters,
-including `Eq`, `Show`, and `Function1`.
-Here's an example:
+Мы создаём экземпляры `Contravariant`
+используя метод `Contravariant.apply`.
+Cats предоставляет экземпляры для типов данных, которые потребляют параметры,
+включая `Eq`, `Show`, и `Function1`.
+Например:
 
 ```tut:book:silent:reset
 import cats.Contravariant
@@ -43,25 +43,25 @@ val showSymbol = Contravariant[Show].
 showSymbol.show('dave)
 ```
 
-More conveniently, we can use
+Более удобно, мы можем использовать
 [`cats.syntax.contravariant`][cats.syntax.contravariant],
-which provides a `contramap` extension method:
+который предоставляет метод расширения `contramap`:
 
 ```tut:book:silent
-import cats.syntax.contravariant._ // for contramap
+import cats.syntax.contravariant._ // для contramap
 ```
 
 ```tut:book
 showString.contramap[Symbol](_.name).show('dave)
 ```
 
-### Invariant in Cats
+### Инвариантность в Cats
 
-Among other types,
-Cats provides an instance of `Invariant` for `Monoid`.
-This is a little different from the `Codec`
-example we introduced in Section [@sec:functors:invariant].
-If you recall, this is what `Monoid` looks like:
+Среди прочих типов,
+Cats предоставляют экземпляр `Invariant` для `Monoid`.
+Это немного отличается от примера с `Codec`,
+который был представлен в разделе [@sec:functors:invariant].
+Если вы помните, это то, как выглядит `Monoid`:
 
 ```scala
 package cats
@@ -72,25 +72,25 @@ trait Monoid[A] {
 }
 ```
 
-Imagine we want to produce a `Monoid`
-for Scala's [`Symbol`][link-symbol] type.
-Cats doesn't provide a `Monoid` for `Symbol`
-but it does provide a `Monoid` for a similar type: `String`.
-We can write our new semigroup with
-an `empty` method that relies on the empty `String`,
-and a `combine` method that works as follows:
+Представьте, что мы хотим создать `Monoid`
+для типа [`Symbol`][link-symbol] в Scala.
+Cats не предоставляет `Monoid` для `Symbol`
+но предоставляет `Monoid` для похожего типа: `String`.
+Мы можем написать нашу новую полугруппу с
+методом `empty`, который основывается на пустой `String`,
+и методом `combine`, который работает следующим образом:
 
-1. accept two `Symbols` as parameters;
-2. convert the `Symbols` to `Strings`;
-3. combine the `Strings` using `Monoid[String]`;
-4. convert the result back to a `Symbol`.
+1. принимает два `Symbols` как параметры;
+2. преобразует `Symbols` в `Strings`;
+3. комбинирует `Strings` используя `Monoid[String]`;
+4. преобразует результат обратно в `Symbol`.
 
-We can implement `combine` using `imap`,
-passing functions of type `String => Symbol`
-and `Symbol => String` as parameters.
-Here' the code, written out using
-the `imap` extension method
-provided by `cats.syntax.invariant`:
+Мы можем реализовать `combine` используя `imap`,
+передавая функции типа `String => Symbol`
+и `Symbol => String` как параметры.
+Ниже представлен код, который написан с помощью
+метода расширения `imap`
+представленный в `cats.syntax.invariant`:
 
 ```tut:book:silent
 import cats.Monoid
