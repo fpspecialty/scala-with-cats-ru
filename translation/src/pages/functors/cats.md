@@ -1,16 +1,16 @@
-## Functors in Cats
+## Функторы в Cats
 
-Let's look at the implementation of functors in Cats.
-We'll examine the aspects we did for monoids:
-the *type class*, the *instances*, and the *syntax*.
+Давайте рассмотрим реализацию функторов в Cats.
+Мы изучим аспекты которые встречались и у моноидов:
+*тайпкласс*, *экземпляры*, и *синтаксис*.
 
-### The Functor Type Class
+### Тайпкласс Функтор
 
-The functor type class is [`cats.Functor`][cats.Functor].
-We obtain instances using the standard `Functor.apply`
-method on the companion object.
-As usual, default instances are arranged by type in
-the [`cats.instances`][cats.instances] package:
+Тайпкласс функтор [`cats.Functor`][cats.Functor].
+Получить его экземпляры можно с помощью метода `Functor.apply`,
+который находится в объекте-компаньоне.
+Как обычно, готовые экземпляры упорядочены по типу в пакете
+[`cats.instances`][cats.instances]:
 
 ```tut:book:silent
 import scala.language.higherKinds
@@ -27,9 +27,9 @@ val option1 = Option(123)
 val option2 = Functor[Option].map(option1)(_.toString)
 ```
 
-`Functor` also provides the `lift` method,
-which converts a function of type `A => B`
-to one that operates over a functor and has type `F[A] => F[B]`:
+`Functor` также предоставляет метод `lift`,
+который преобразует функцию типа `A => B`
+в функцию, которая имеет тип `F[A] => F[B]`:
 
 ```tut:book
 val func = (x: Int) => x + 1
@@ -39,19 +39,19 @@ val liftedFunc = Functor[Option].lift(func)
 liftedFunc(Option(1))
 ```
 
-### Functor Syntax
+### Синтаксис Функтора
 
-The main method provided by the syntax for `Functor` is `map`.
-It's difficult to demonstrate this with `Options` and `Lists`
-as they have their own built-in `map` methods
-and the Scala compiler will always prefer
-a built-in method over an extension method.
-We'll work around this with two examples.
+Главный метод предоставляемый синтаксисом для `Functor` это `map`.
+Трудно продемонстрировать это с помощью `Options` и `Lists`,
+так как у них есть свои собственные встроенные методы `map`
+и компилятор Scala всегда будет предпочитать
+встроенный метод в сравнении с методом расширения.
+Мы рассмотрим это на двух примерах.
 
-First let's look at mapping over functions.
-Scala's `Function1` type doesn't have a `map` method
-(it's called `andThen` instead)
-so there are no naming conflicts:
+Сначала рассмотрим маппинг функций.
+В типе `Function1` в Scala нет метода `map`,
+(вместо этого он называется `andThen`)
+поэтому и нет конфликтов с именами:
 
 ```tut:book:silent
 import cats.instances.function._ // for Functor
@@ -69,11 +69,11 @@ val func4 = func1.map(func2).map(func3)
 func4(123)
 ```
 
-Let's look at another example.
-This time we'll abstract over functors
-so we're not working with any particular concrete type.
-We can write a method that applies an equation to a number
-no matter what functor context it's in:
+Рассмотрим другой пример.
+В этот раз мы будем абстрагироваться от функторов,
+так чтобы не пришлось работать ни с одним конкретным типом.
+Мы можем написать метод, который применяет уравнение к числу,
+независимо от того, в каком контексте функтора оно находится:
 
 ```tut:book:silent
 def doMath[F[_]](start: F[Int])
@@ -89,10 +89,10 @@ doMath(Option(20))
 doMath(List(1, 2, 3))
 ```
 
-To illustrate how this works,
-let's take a look at the definition of
-the `map` method in `cats.syntax.functor`.
-Here's a simplified version of the code:
+Чтобы проиллюстрировать, как это работает,
+давайте посмотрим на определение метода
+`map` в `cats.syntax.functor`.
+Вот упрощённая версия кода:
 
 ```scala
 implicit class FunctorOps[F[_], A](src: F[A]) {
@@ -102,26 +102,26 @@ implicit class FunctorOps[F[_], A](src: F[A]) {
 }
 ```
 
-The compiler can use this extension method
-to insert a `map` method wherever no built-in `map` is available:
+Компилятор может использовать этот метод расширения
+чтобы добавить метод `map` везде, где не доступен встроенный метод `map`:
 
 ```scala
 foo.map(value => value + 1)
 ```
 
-Assuming `foo` has no built-in `map` method,
-the compiler detects the potential error and
-wraps the expression in a `FunctorOps` to fix the code:
+Если предположить что у `foo` нет встроенного метода `map`,
+компилятор обнаруживает потенциальную ошибку и
+обертывает выражение в `FunctorOps` для исправления кода:
 
 ```scala
 new FunctorOps(foo).map(value => value + 1)
 ```
 
-The `map` method of `FunctorOps` requires
-an implicit `Functor` as a parameter.
-This means this code will only compile
-if we have a `Functor` for `F` in scope.
-If we don't, we get a compiler error:
+Метод `map` у `FunctorOps` требует
+неявный `Functor` в качестве параметра.
+Это означает, что данный код будет скомпилирован
+если у нас есть `Functor` для `F` в области видимости.
+Иначе, мы получаем ошибку компиляции:
 
 ```tut:book:silent
 final case class Box[A](value: A)
@@ -133,12 +133,12 @@ val box = Box[Int](123)
 box.map(value => value + 1)
 ```
 
-### Instances for Custom Types
+### Экземпляры пользовательских типов
 
-We can define a functor simply by defining its map method.
-Here's an example of a `Functor` for `Option`,
-even though such a thing already exists in [`cats.instances`][cats.instances].
-The implementation is trivial---we simply call `Option's` `map` method:
+Мы можем определить функтор просто определив его метод map.
+Ниже представлен пример `Functor` для `Option`,
+хотя подобный код уже существует в [`cats.instances`][cats.instances].
+Реализация тривиальна — мы просто вызываем метод `map` у `Option`:
 
 ```tut:book:silent
 implicit val optionFunctor: Functor[Option] =
@@ -148,12 +148,12 @@ implicit val optionFunctor: Functor[Option] =
   }
 ```
 
-Sometimes we need to inject dependencies into our instances.
-For example, if we had to define a custom `Functor` for `Future`
-(another hypothetical example---Cats provides one in `cats.instances.future`)
-we would need to account for the implicit `ExecutionContext` parameter on `future.map`.
-We can't add extra parameters to `functor.map`
-so we have to account for the dependency when we create the instance:
+Иногда нам нужно внедрить зависимости для наших экземпляров.
+Например, если бы нам пришлось определить свой `Functor` для `Future`,
+(другой гипотетический пример Cats предоставляют в `cats.instances.future`)
+нам бы пришлось запрашивать неявный параметр `ExecutionContext` для `future.map`.
+Мы не можем добавлять дополнительные параметры к `functor.map`,
+поэтому нам придётся запрашивать нужные нам зависимости в момент создания экземпляра:
 
 ```tut:book:silent
 import scala.concurrent.{Future, ExecutionContext}
@@ -166,28 +166,28 @@ implicit def futureFunctor
   }
 ```
 
-Whenever we summon a `Functor` for `Future`,
-either directly using `Functor.apply`
-or indirectly via the `map` extension method,
-the compiler will locate `futureFunctor` by implicit resolution
-and recursively search for an `ExecutionContext` at the call site.
-This is what the expansion might look like:
+Всякий раз, когда мы требуем `Functor` для `Future`,
+либо напрямую используя `Functor.apply`
+или косвенно с помощью метода расширения `map`,
+компилятор обнаружит `futureFunctor` с помощью поиска неявных параметров
+и рекурсивного поиска `ExecutionContext` по месту вызова.
+Вот как может выглядеть такое расширение:
 
 ```scala
-// We write this:
+// Мы пишем:
 Functor[Future]
 
-// The compiler expands to this first:
+// Сперва компилятор расширяет это до:
 Functor[Future](futureFunctor)
 
-// And then to this:
+// А потом до:
 Functor[Future](futureFunctor(executionContext))
 ```
 
-### Exercise: Branching out with Functors
+### Упражнение: Разветвляемся с Функторами
 
-Write a `Functor` for the following binary tree data type.
-Verify that the code works as expected on instances of `Branch` and `Leaf`:
+Напишите `Functor` для следующего бинарного дерева.
+Проверьте что код ожидаемо работает для экземпляров `Branch` и `Leaf`:
 
 ```tut:book:silent
 object wrapper {
@@ -201,10 +201,10 @@ object wrapper {
 ```
 
 <div class="solution">
-The semantics are similar to writing a `Functor` for `List`.
-We recurse over the data structure, applying the function to every `Leaf` we find.
-The functor laws intuitively require us to retain the same structure
-with the same pattern of `Branch` and `Leaf` nodes:
+Семантика похожа на написание `Functor` для `List`.
+Рекурсивно обходим структуру данных, применяя функцию к каждому `Leaf`, который найдём.
+Законы функтора интуитивно требуют от нас сохранения прежней структуры 
+с таким же расположением узлов `Branch` и `Leaf`:
 
 ```tut:book:silent
 import cats.Functor
@@ -221,16 +221,15 @@ implicit val treeFunctor: Functor[Tree] =
   }
 ```
 
-Let's use our `Functor` to transform some `Trees`:
+Давайте используем наш `Functor` для переобразования некоторых `Trees`:
 
 ```tut:book:fail
 Branch(Leaf(10), Leaf(20)).map(_ * 2)
 ```
 
-Oops! This falls foul of
-the same invariance problem we discussed in Section [@sec:variance].
-The compiler can find a `Functor` instance for `Tree` but not for `Branch` or `Leaf`.
-Let's add some smart constructors to compensate:
+Упс! Перед нами встаёт таже проблема инвариантности, которую мы обсуждали в разделе [@sec:variance].
+Компиллятор может найти экземпляр `Functor` для `Tree` но не для `Branch` или `Leaf`.
+Давайте добавим смарт-конструкторы для решения этой проблемы:
 
 ```tut:book:silent
 object Tree {
@@ -242,7 +241,7 @@ object Tree {
 }
 ```
 
-Now we can use our `Functor` properly:
+Теперь мы можем использовать наш `Functor` правильно:
 
 ```tut:book
 Tree.leaf(100).map(_ * 2)
