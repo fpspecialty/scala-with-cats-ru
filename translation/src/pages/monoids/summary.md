@@ -1,31 +1,32 @@
-## Summary
+## Итог
 
-We hit a big milestone in this chapter---we covered
-our first type classes with fancy functional programming names:
+В этой главе мы сделали большой прогресс — мы рассмотрели
+наши первые классы с причудливыми именами из функционального программирования:
 
- -  a `Semigroup` represents an addition or combination operation;
- -  a `Monoid` extends a `Semigroup` by adding an identity or "zero" element.
+- `Semigroup`, представляющая собой операцию сложения или комбинации;
+- `Monoid`, расширяющий полугруппу, добавляя тождественный (нейтральный) элемент.
 
-We can use `Semigroups` and `Monoids` by importing three things:
-the type classes themselves, the instances for the types we care about,
-and the semigroup syntax to give us the `|+|` operator:
+Мы можем использовать `Semigroup` и `Monoid`, импортируя три вещи:
+сами классы типов, экземпляры для нужных нам типов,
+и синтаксис полугруппы, чтобы использовать оператор `|+|`:
+
 
 ```tut:book:silent
 import cats.Monoid
-import cats.instances.string._ // for Monoid
-import cats.syntax.semigroup._ // for |+|
+import cats.instances.string._ // для Monoid
+import cats.syntax.semigroup._ // для |+|
 ```
 
 ```tut:book
 "Scala" |+| " with " |+| "Cats"
 ```
 
-With the correct instances in scope,
-we can set about adding anything we want:
+С правильными экземплярами в области видимости
+мы можем складывать что угодно:
 
 ```tut:book:silent
-import cats.instances.int._    // for Monoid
-import cats.instances.option._ // for Monoid
+import cats.instances.int._    // для Monoid
+import cats.instances.option._ // для Monoid
 ```
 
 ```tut:book
@@ -33,7 +34,7 @@ Option(1) |+| Option(2)
 ```
 
 ```tut:book:silent
-import cats.instances.map._ // for Monoid
+import cats.instances.map._ // для Monoid
 
 val map1 = Map("a" -> 1, "b" -> 2)
 val map2 = Map("b" -> 3, "d" -> 4)
@@ -44,7 +45,7 @@ map1 |+| map2
 ```
 
 ```tut:book:silent
-import cats.instances.tuple._  // for Monoid
+import cats.instances.tuple._  // для Monoid
 
 
 val tuple1 = ("hello", 123)
@@ -55,8 +56,8 @@ val tuple2 = ("world", 321)
 tuple1 |+| tuple2
 ```
 
-We can also write generic code that works with any type
-for which we have an instance of `Monoid`:
+Мы также можем написать обобщённый код, который работает с любым типом,
+для которого у нас есть экземпляр `Monoid`:
 
 ```tut:book:silent
 def addAll[A](values: List[A])
@@ -69,10 +70,10 @@ addAll(List(1, 2, 3))
 addAll(List(None, Some(1), Some(2)))
 ```
 
-`Monoids` are a great gateway to Cats.
-They're easy to understand and simple to use.
-However, they're just the tip of the iceberg
-in terms of the abstractions Cats enables us to make.
-In the next chapter we'll look at *functors*,
-the type class personification of the beloved `map` method.
-That's where the fun really begins!
+Моноиды — великолепная тема для знакомства с Cats.
+Их легко понять и просто использовать.
+Тем не менее, это только верхушка айсберга
+с точки зрения абстракций, которые Cats позволяет нам использовать.
+В следующей главе мы рассмотрим функторы —
+излюбленный метод `map` в обличии тайпкласса.
+Вот тут-то и начинается самое интересное!
