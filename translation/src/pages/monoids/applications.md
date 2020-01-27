@@ -1,52 +1,52 @@
-## Applications of Monoids
+## Применение моноидов
 
-We now know what a monoid is---an abstraction of the concept of adding or combining---but where is it useful?
-Here are a few big ideas where monoids play a major role.
-These are explored in more detail in case studies later in the book.
+Мы знаем что такое моноид — абстракция сложения или комбинирования — но, где это применимо?
+Есть несколько значительных идей, в которых моноиды играют ключевую роль.
+Они будут рассмотрены более подробно на примерах далее.
 
-### Big Data
+### Большие данные
 
-In big data applications like Spark and Hadoop we distribute data analysis over many machines,
-giving fault tolerance and scalability.
-This means each machine will return results over a portion of the data,
-and we must then combine these results to get our final result.
-In the vast majority of cases this can be viewed as a monoid.
+Фреймворки для работы с большими данными, такие как Spark и Hadoop, распределяют анализ данных на множестве машин,
+что обеспечивает отказоустойчивость и масштабируемость.
+Это означает, что каждая машина вернёт результат обработки только определённой части данных,
+и для получения итогового результата нам потребуется объединить промежуточные.
+В подавляющем большинстве случаев это можно рассматривать как моноид.
 
-If we want to calculate how many total visitors a web site has received,
-that means calculating an `Int` on each portion of the data.
-We know the monoid instance of `Int` is addition, which is the right way to combine partial results.
+Если мы хотим подсчитать количество посетителей веб-сайта,
+мы можем подсчитать `Int` для каждой порции данных.
+Мы знаем, что экземпляр моноида для `Int` определён через операцию сложения, и сложение является подходящим способом объединения частичных результатов.
 
-If we want to find out how many unique visitors a website has received,
-that's equivalent to building a `Set[User]` on each portion of the data.
-We know the monoid instance for `Set` is the set union, which is the right way to combine partial results.
+А если мы хотим подсчитать количество уникальных посетителей веб-сайта,
+то это будет эквивалентно тому, чтобы сформировать `Set[User]` из каждой порции данных о просмотрах.
+Мы знаем, что экземпляр моноида для `Set` определён через операцию объединения множеств, и это подходящий способ объединения частичных результатов.
 
-If we want to calculate 99% and 95% response times from our server logs,
-we can use a data structure called a `QTree` for which there is a monoid.
+Если мы захотим подсчитать процентили времени обработки запросов сервером,
+мы можем использовать структуру `QTree`, для которой так же имеется экземпляр моноида.
 
-Hopefully you get the idea. Almost every analysis that we might want to do over a large data set is a monoid,
-and therefore we can build an expressive and powerful analytics system around this idea.
-This is exactly what Twitter's Algebird and Summingbird projects have done.
-We explore this idea further in the [map-reduce](#map-reduce) case study.
+Надеюсь, вы поняли идею. Почти каждый результат анализа больших данных будет являться моноидом,
+и это позволяет нам построить выразительную и мощную аналитическую систему вокруг этой идеи.
+Это именно то, что сделали проекты Twitter Algebird и Summingbird.
+Мы подробно изучим эту идею в примере [map-reduce](#map-reduce) во второй части книги.
 
-### Distributed Systems
+### Распределённые системы
 
-In a distributed system,
-different machines may end up with different views of data.
-For example,
-one machine may receive an update that other machines did not receive.
-We would like to reconcile these different views,
-so every machine has the same data if no more updates arrive.
-This is called *eventual consistency*.
+В распределённых системах
+разные машины могут иметь разные представления данных.
+Например,
+одна машина может получить обновление, которое другие машины ещё не получили.
+Мы хотели бы согласовать эти представления,
+чтобы все машины имели одинаковые данные, если обновления больше не поступают.
+Это называется *согласованность в конечном счёте (eventual consistency)*.
 
-A particular class of data types support this reconciliation.
-These data types are called commutative replicated data types (CRDTs).
-The key operation is the ability to merge two data instances,
-with a result that captures all the information in both instances.
-This operation relies on having a monoid instance.
-We explore this idea further in the CRDT case study.
+Определенный класс типов данных поддерживает это согласование.
+Эти типы данных называются коммутативно реплицируемыми типами данных (CRDT).
+Ключевой операцией является возможность объединения двух экземпляров данных,
+в результате которого объединяется информация из обоих экземпляров.
+Для осуществления этой операции ключевым условием является наличие экземпляра моноида для наших данных.
+Мы подробно остановимся на этом, когда будем говорить о CRDT.
 
-### Monoids in the Small
+### Моноиды в малом
 
-The two examples above are cases where monoids inform the entire system architecture.
-There are also many cases where having a monoid around makes it easier to write a small code fragment.
-We'll see lots of examples in the case studies in this book.
+Два приведенных выше примера представляют собой случаи, когда моноиды затрагивают всю архитектуру системы.
+Существует также много случаев, когда наличие моноида облегчает написание небольшого фрагмента кода.
+Мы увидим много таких примеров в этой книге.
