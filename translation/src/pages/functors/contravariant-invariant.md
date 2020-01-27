@@ -281,7 +281,7 @@ implicit val booleanCodec: Codec[Boolean] =
 и посмотреть на *линзы* и *оптики*.
 
 Оптики выходят за рамки этой книги.
-Однако, библиотека [Monocle][link-monocle]
+Однако, библиотека [Monocle][link-monocle],
 разработанная Julien Truffaut является отличной
 отправной точкой для дальнейшего изучения.
 </div>
