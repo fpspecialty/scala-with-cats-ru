@@ -2,7 +2,7 @@
 
 Давайте рассмотрим реализацию
 контравариантных и инвариантных функторов в Cats,
-представляемые тайпклассами [`cats.Contravariant`][cats.Contravariant]
+представляемых тайпклассами [`cats.Contravariant`][cats.Contravariant]
 и [`cats.Invariant`][cats.Invariant].
 Ниже представлена упрощённая версия кода:
 
@@ -43,7 +43,7 @@ val showSymbol = Contravariant[Show].
 showSymbol.show('dave)
 ```
 
-Более удобно, мы можем использовать
+Для удобства мы можем использовать
 [`cats.syntax.contravariant`][cats.syntax.contravariant],
 который предоставляет метод расширения `contramap`:
 
@@ -72,17 +72,17 @@ trait Monoid[A] {
 }
 ```
 
-Представьте, что мы хотим создать `Monoid`
+Представьте, что мы хотим создать экземпляр `Monoid`
 для типа [`Symbol`][link-symbol] в Scala.
 Cats не предоставляет `Monoid` для `Symbol`,
 но предоставляет `Monoid` для похожего типа: `String`.
 Мы можем написать полугруппу с
-методом `empty`, который основывается на пустой `String`,
+методом `empty`, который возвращает пустую `String`,
 и методом `combine`, который работает следующим образом:
 
 1. принимает два параметра `Symbol`;
 2. преобразует `Symbol` в `String`;
-3. комбинирует `String`, используя `Monoid[String]`;
+3. соединяет `String`, используя `Monoid[String]`;
 4. преобразует результат обратно в `Symbol`.
 
 Мы можем реализовать `combine`, используя `imap`,
@@ -90,7 +90,7 @@ Cats не предоставляет `Monoid` для `Symbol`,
 и `Symbol => String` как параметры.
 Ниже представлен код, который написан с помощью
 метода расширения `imap`,
-представленный в `cats.syntax.invariant`:
+представленного в `cats.syntax.invariant`:
 
 ```tut:book:silent
 import cats.Monoid
