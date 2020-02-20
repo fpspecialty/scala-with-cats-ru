@@ -1,41 +1,41 @@
-## *Contravariant* and Invariant Functors {#contravariant-invariant}
+## *Контравариантные* и инвариантные функторы {#contravariant-invariant}
 
-As we have seen, we can think of `Functor's` `map` method as
-"appending" a transformation to a chain.
-We're now going to look at two other type classes,
-one representing *prepending* operations to a chain,
-and one representing building a *bidirectional*
-chain of operations. These are called *contravariant*
-and *invariant functors* respectively.
+Как мы уже видели, мы можем думать о методе `map` в `Functor` 
+как о «добавлении» преобразования в некоторую последовательность.
+Рассмотрим два других тайпкласса,
+один из которых представляет собой применение *предварительных* операций к последовательности,
+другой — создание *двунаправленной*
+последовательности операций. Они называются *контравариантным*
+и *инвариантным функторами* соответственно.
 
 <div class="callout callout-info">
-*This Section is Optional!*
+*Раздел является опциональным!*
 
-You don't need to know about contravariant and invariant functors to understand monads,
-which are the most important pattern in this book and the focus of the next chapter.
-However, contravariant and invariant do come in handy in
-our discussion of `Semigroupal` and `Applicative` in Chapter [@sec:applicatives].
+Вам не требуется знать о контравариантных и инвариантных функторах для понимания монад,
+которые являются наиболее важным паттерном в этой книге и основной темой следующей главы.
+Тем не менее, контравариантные и инвариантные функторы пригодятся 
+нам в обсуждении `Semigroupal` и `Applicative` в главе [@sec:applicatives].
 
-If you want to move on to monads now,
-feel free to skip straight to Chapter [@sec:monads].
-Come back here before you read Chapter [@sec:applicatives].
+Если хотите перейти к монадам прямо сейчас —
+не стесняйтесь, переходите сразу к главе [@sec:monads].
+Но вернитесь сюда, прежде чем приступить к главе [@sec:applicatives].
 </div>
 
-### Contravariant Functors and the *contramap* Method {#contravariant}
+### Контравариантные функторы и метод *contramap* {#contravariant}
 
-The first of our type classes, the *contravariant functor*,
-provides an operation called `contramap`
-that represents "prepending" an operation to a chain.
-The general type signature is shown in Figure [@fig:functors:contramap-type-chart].
+Первый тайпкласс, *контравариантный функтор*,
+предоставляет операцию `contramap`,
+которая представляет собой применение «предварительных» операций к последовательности.
+Общее представление операции изображено на рисунке [@fig:functors:contramap-type-chart].
 
-![Type chart: the contramap method](src/pages/functors/generic-contramap.pdf+svg){#fig:functors:contramap-type-chart}
+![Типовая диаграмма: метод contramap](src/pages/functors/generic-contramap.pdf+svg){#fig:functors:contramap-type-chart}
 
-The `contramap` method only makes sense for data types that represent *transformations*.
-For example, we can't define `contramap` for an `Option`
-because there is no way of feeding a value in an
-`Option[B]` backwards through a function `A => B`.
-However, we can define `contramap` for the `Printable` type class
-we discussed in Chapter [@sec:type-classes]:
+Метод `contramap` имеет смысл только для тех типов, которые представляют собой *преобразования*.
+Например, мы не можем объявить `contramap` для `Option`,
+потому что нет способа предварительно обработать значение в
+`Option[B]` с помощью функции `A => B`.
+Однако, мы можем объявить `contramap` для тайпкласса `Printable`,
+который мы обсуждали в главе [@sec:type-classes]:
 
 ```tut:book:silent
 trait Printable[A] {
@@ -43,9 +43,9 @@ trait Printable[A] {
 }
 ```
 
-A `Printable[A]` represents a transformation from `A` to `String`.
-Its `contramap` method accepts a function `func` of type `B => A`
-and creates a new `Printable[B]`:
+`Printable[A]` представляет преобразование из `A` в `String`.
+Его метод `contramap` принимает функцию `func` типа `B => A`
+и создаёт новый `Printable[B]`:
 
 ```tut:book:silent
 trait Printable[A] {
@@ -59,11 +59,11 @@ def format[A](value: A)(implicit p: Printable[A]): String =
   p.format(value)
 ```
 
-#### Exercise: Showing off with Contramap
+#### Упражнение: Хвастаемся с contramap
 
-Implement the `contramap` method for `Printable` above.
-Start with the following code template
-and replace the `???` with a working method body:
+Реализуйте метод `contramap` для `Printable`, упомянутого выше.
+Начните с предложенной заготовки
+и замените `???` на рабочий код метода:
 
 ```tut:book:silent
 trait Printable[A] {
@@ -77,19 +77,19 @@ trait Printable[A] {
 }
 ```
 
-If you get stuck, think about the types.
-You need to turn `value`, which is of type `B`, into a `String`.
-What functions and methods do you have available
-and in what order do they need to be combined?
+Если вы застряли, подумайте о типах.
+Вам нужно преобразовать `value` типа `B`, в `String`.
+Какие функции и методы вам доступны
+и в каком порядке их нужно скомбинировать?
 
 <div class="solution">
-Here's a working implementation.
-We call `func` to turn the `B` into an `A`
-and then use our original `Printable`
-to turn the `A` into a `String`.
-In a small show of sleight of hand
-we use a `self` alias to distinguish
-the outer and inner `Printables`:
+Ниже представлена рабочая реализация.
+Мы вызываем `func` для преобразования `B` в `A`,
+и затем используем `Printable`
+для преобразования `A` в `String`.
+Лёгким движением руки
+мы используем алиас `self`, чтобы различать
+внешний и внутренний `Printable`:
 
 ```tut:book:silent
 trait Printable[A] {
@@ -109,9 +109,9 @@ def format[A](value: A)(implicit p: Printable[A]): String =
 ```
 </div>
 
-For testing purposes,
-let's define some instances of `Printable`
-for `String` and `Boolean`:
+Для тестирования
+давайте определим некоторые экземпляры `Printable`
+для `String` и `Boolean`:
 
 ```tut:book:silent
 implicit val stringPrintable: Printable[String] =
@@ -132,25 +132,25 @@ format("hello")
 format(true)
 ```
 
-Now define an instance of `Printable` for
-the following `Box` case class.
-You'll need to write this as an `implicit def`
-as described in Section [@sec:type-classes:recursive-implicits]:
+Теперь определите экземпляр `Printable` для
+заданного case-класса `Box`.
+Вам потребуется объявить его как `implicit def`,
+как описано в разделе [@sec:type-classes:recursive-implicits]:
 
 ```tut:book:silent
 final case class Box[A](value: A)
 ```
 
-Rather than writing out
-the complete definition from scratch
-(`new Printable[Box]` etc...),
-create your instance from an
-existing instance using `contramap`.
+Вместо того, чтобы писать
+полную реализацию с нуля
+(`new Printable[Box]` и т.д.),
+создайте собственный экземпляр из
+существующего с помощью `contramap`.
 
 <div class="solution">
-To make the instance generic across all types of `Box`,
-we base it on the `Printable` for the type inside the `Box`.
-We can either write out the complete definition by hand:
+Чтобы сделать экземпляр универсальным для всех типов `Box`,
+нам нужно брать за основу экземпляр `Printable` для типа внутри `Box`.
+Мы можем либо написать полную реализацию вручную:
 
 ```tut:book:silent
 implicit def boxPrintable[A](implicit p: Printable[A]) =
@@ -160,52 +160,52 @@ implicit def boxPrintable[A](implicit p: Printable[A]) =
   }
 ```
 
-or use `contramap` to base the new instance
-on the implicit parameter:
+либо использовать `contramap`, чтобы создать новый экземпляр
+с помощью неявного параметра:
 
 ```tut:book:silent
 implicit def boxPrintable[A](implicit p: Printable[A]) =
   p.contramap[Box[A]](_.value)
 ```
 
-Using `contramap` is much simpler,
-and conveys the functional programming approach
-of building solutions by combining simple building blocks
-using pure functional combinators.
+Использовать `contramap` намного проще
+и отражает функциональный подход
+к решению задач путём комбинирования простых блоков,
+используя чистые функциональные комбинаторы.
 </div>
 
-Your instance should work as follows:
+Ваш пример должен работать следующим образом:
 
 ```tut:book
 format(Box("hello world"))
 format(Box(true))
 ```
 
-If we don't have a `Printable` for the type inside the `Box`,
-calls to `format` should fail to compile:
+Если у вас нет `Printable` для типа внутри `Box`,
+вызов `format` должен привести к ошибке компиляции:
 
 ```tut:book:fail
 format(Box(123))
 ```
 
-### Invariant functors and the *imap* method {#sec:functors:invariant}
+### Инвариантные функторы и метод *imap* {#sec:functors:invariant}
 
-*Invariant functors* implement a method called `imap`
-that is informally equivalent to a
-combination of `map` and `contramap`.
-If `map` generates new type class instances by
-appending a function to a chain,
-and `contramap` generates them by
-prepending an operation to a chain,
-`imap` generates them via
-a pair of bidirectional transformations.
+*Инвариантные функторы* реализуют метод `imap`,
+который неформально эквивалентен
+комбинации `map` и `contramap`.
+Если `map` позволяет определить новый экземпляр тайпкласса путём
+добавления функции к последовательности,
+и `contramap` позволяет определить их с помощью
+применения предварительных операций к последовательности,
+то с imap новый экземпляр определяется при помощи
+пары двунаправленных преобразований.
 
-The most intuitive examples of this are a type class
-that represents encoding and decoding as some data type,
-such as Play JSON's [`Format`][link-play-json-format]
-and scodec's [`Codec`][link-scodec-codec].
-We can build our own `Codec` by enhancing `Printable`
-to support encoding and decoding to/from a `String`:
+Самыми интуитивно понятными примерами являются такие тайпклассы,
+которые представляют кодирование и декодирование некоторых типов данных,
+такие как JSON [`Format`][link-play-json-format] в Play
+и [`Codec`][link-scodec-codec] в scodec.
+Мы можем написать свой `Codec`, расширив `Printable`,
+для поддержки как кодирования в `String`, так и декодирования обратно:
 
 ```tut:book:silent
 trait Codec[A] {
@@ -241,16 +241,16 @@ def decode[A](value: String)(implicit c: Codec[A]): A =
   c.decode(value)
 ```
 
-The type chart for `imap` is shown in
-Figure [@fig:functors:imap-type-chart].
-If we have a `Codec[A]`
-and a pair of functions `A => B` and `B => A`,
-the `imap` method creates a `Codec[B]`:
+Типовая диаграмма для `imap` показана на
+рисунке [@fig:functors:imap-type-chart].
+Если у нас есть `Codec[A]`
+и пара функиций `A => B` и `B => A`,
+метод `imap` создаёт `Codec[B]`:
 
-![Type chart: the imap method](src/pages/functors/generic-imap.pdf+svg){#fig:functors:imap-type-chart}
+![Типовая диаграмма: метод imap](src/pages/functors/generic-imap.pdf+svg){#fig:functors:imap-type-chart}
 
-As an example use case, imagine we have a basic `Codec[String]`,
-whose `encode` and `decode` methods are both a no-op:
+В качестве примера, представьте, что у нас есть базовый `Codec[String]`,
+методы `encode` и `decode` возвращают точно то значение, которое принимают:
 
 ```tut:book:silent
 implicit val stringCodec: Codec[String] =
@@ -260,8 +260,8 @@ implicit val stringCodec: Codec[String] =
   }
 ```
 
-We can construct many useful `Codecs` for other types
-by building off of `stringCodec` using `imap`:
+Мы можем создать много полезных `Codec` для других типов,
+преобразуя `stringCodec` с помощью `imap`:
 
 ```tut:book:silent
 implicit val intCodec: Codec[Int] =
@@ -272,26 +272,26 @@ implicit val booleanCodec: Codec[Boolean] =
 ```
 
 <div class="callout callout-info">
-*Coping with Failure*
+*Обработка ошибок*
 
-Note that the `decode` method of our `Codec` type class
-doesn't account for failures.
-If we want to model more sophisticated relationships
-we can move beyond functors
-to look at *lenses* and *optics*.
+Обратите внимание, что метод `decode` нашего тайпкласса `Codec`
+не обрабатывает ошибки.
+Если мы хотим смоделировать более сложное поведение,
+то можем выйти за пределы функторов
+и посмотреть на *линзы* и *оптики*.
 
-Optics are beyond the scope of this book.
-However, Julien Truffaut's library
-[Monocle][link-monocle] provides a great
-starting point for further investigation.
+Оптики выходят за рамки этой книги.
+Однако, библиотека [Monocle][link-monocle],
+разработанная Julien Truffaut, является отличной
+отправной точкой для дальнейшего изучения.
 </div>
 
-#### Transformative Thinking with *imap*
+#### Мышление преобразованиями с *imap*
 
-Implement the `imap` method for `Codec` above.
+Реализуйте метод `imap` для `Codec` выше.
 
 <div class="solution">
-Here's a working implementation:
+Ниже представлена рабочая реализация:
 
 ```tut:book:silent:reset
 trait Codec[A] {
@@ -332,12 +332,12 @@ def decode[A](value: String)(implicit c: Codec[A]): A =
 ```
 </div>
 
-Demonstrate your `imap` method works by
-creating a `Codec` for `Double`.
+Покажите, что ваш метод `imap` позволяет
+создать `Codec` для `Double`.
 
 <div class="solution">
-We can implement this using
-the `imap` method of `stringCodec`:
+Мы можем реализовать это, используя
+метод `imap` у `stringCodec`:
 
 ```tut:book:silent
 implicit val doubleCodec: Codec[Double] =
@@ -345,16 +345,16 @@ implicit val doubleCodec: Codec[Double] =
 ```
 </div>
 
-Finally, implement a `Codec` for the following `Box` type:
+Наконец, реализуйте `Codec` для следующего типа `Box`:
 
 ```tut:book:silent
 case class Box[A](value: A)
 ```
 
 <div class="solution">
-We need a generic `Codec` for `Box[A]` for any given `A`.
-We create this by calling `imap` on a `Codec[A]`,
-which we bring into scope using an implicit parameter:
+Нам нужен общий `Codec` для `Box[A]` для любого `A`.
+Мы создаём его, вызывая метод `imap` у `Codec[A]`,
+который оказывается в области видимости через неявный параметр:
 
 ```tut:book:silent
 implicit def boxCodec[A](implicit c: Codec[A]): Codec[Box[A]] =
@@ -362,7 +362,7 @@ implicit def boxCodec[A](implicit c: Codec[A]): Codec[Box[A]] =
 ```
 </div>
 
-Your instances should work as follows:
+Ваши примеры должны работать следующим образом:
 
 ```tut:book
 encode(123.4)
@@ -373,36 +373,36 @@ decode[Box[Double]]("123.4")
 ```
 
 <div class="callout callout-warning">
-*What's With the Names?*
+*Что с названиями?*
 
-What's the relationship between the terms
-"contravariance", "invariance", and "covariance"
-and these different kinds of functor?
+Какова связь между терминами
+"контравариатность", "инвариантность", и "ковариантность"
+и этими разными типами функторов?
 
-If you recall from Section [@sec:variance],
-variance affects subtyping,
-which is essentially our ability to use a value of one type
-in place of a value of another type
-without breaking the code.
+Если вы помните из раздела [@sec:variance],
+вариантность влияет на подтипирование,
+что, по сути, является нашей способностью использовать значение одного типа 
+вместо значения другого,
+не ломая код.
 
-Subtyping can be viewed as a conversion.
-If `B` is a subtype of `A`,
-we can always convert a `B` to an `A`.
+Подтипирование можно рассматривать как преобразование.
+Если `B` — это подтип `A`,
+то мы всегда можем преобразовать `B` в `A`.
 
-Equivalently we could say that `B` is a subtype of `A`
-if there exists a function `A => B`.
-A standard covariant functor captures exactly this.
-If `F` is a covariant functor,
-wherever we have an `F[A]` and a conversion `A => B`
-we can always convert to an `F[B]`.
+Аналогично, можно сказать что `B` — это подтип `A`
+если существует функция `A => B`.
+Стандартный ковариантный функтор рассматривает именно этот случай.
+Если `F` — это ковариантный функтор,
+где бы у нас ни было `F[A]` и функции `A => B`,
+мы всегда сможем получить `F[B]`.
 
-A contravariant functor captures the opposite case.
-If `F` is a contravariant functor,
-whenever we have a `F[A]` and a conversion `B => A`
-we can convert to an `F[B]`.
+Контрвариантный функтор рассматривает противоположный случай.
+Если `F` — это контрвариантный функтор,
+где бы у нас ни было `F[A]` и функции `B => A`
+мы всегда сможем получить `F[B]`.
 
-Finally, invariant functors capture the case where
-we can convert from `F[A]` to `F[B]`
-via a function `A => B`
-and vice versa via a function `B => A`.
+Наконец, инвариантные функторы рассматривают случай, где
+мы можем преобразовать `F[A]` в `F[B]`
+с помощью функции `A => B`
+и обратно с помощью функции `B => A`.
 </div>
