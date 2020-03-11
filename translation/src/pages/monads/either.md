@@ -1,20 +1,20 @@
 ## Either
 
-Let's look at another useful monad:
-the `Either` type from the Scala standard library.
-In Scala 2.11 and earlier,
-many people didn't consider `Either` a monad
-because it didn't have `map` and `flatMap` methods.
-In Scala 2.12, however, `Either` became *right biased*.
+Рассмотрим ещё одну полезную монаду:
+`Either` из стандартной библиотеки Scala.
+В Scala 2.11 и ниже
+многие не считали `Either` монадой,
+потому что не были определены методы `map` и `flatMap`.
+Однако в Scala 2.12 `Either` стал *right biased*.
 
-### Left and Right Bias
+### Left и Right Bias
 
-In Scala 2.11, `Either` had no default
-`map` or `flatMap` method.
-This made the Scala 2.11 version of `Either`
-inconvenient to use in for comprehensions.
-We had to insert calls to `.right`
-in every generator clause:
+В Scala 2.11 `Either` не имел методов
+`map` или `flatMap`.
+Из-за этого `Either`
+был неудобен для использования в for-выражении.
+Нужно было вставлять вызовы `.right`
+в каждой конструкции:
 
 ```tut:book:silent
 val either1: Either[String, Int] = Right(10)
@@ -28,11 +28,11 @@ for {
 } yield a + b
 ```
 
-In Scala 2.12, `Either` was redesigned.
-The modern `Either` makes the decision
-that the right side represents the success case
-and thus supports `map` and `flatMap` directly.
-This makes for comprehensions much more pleasant:
+В Scala 2.12, `Either` был изменен.
+В современном `Either` было решено,
+что правая часть является успешной веткой,
+поэтому даны прямые определения `map` и `flatMap`.
+А использование в for-выражениях стало гораздо приятнее:
 
 ```tut:book
 for {
@@ -41,12 +41,12 @@ for {
 } yield a + b
 ```
 
-Cats back-ports this behaviour to Scala 2.11
-via the `cats.syntax.either` import,
-allowing us to use right-biased `Either`
-in all supported versions of Scala.
-In Scala 2.12+ we can either omit this import
-or leave it in place without breaking anything:
+Cats имеет бэкпорт этого поведения для Scala 2.11
+через импорт `cats.syntax.either`,
+позволяя использовать right-bias `Either`
+во всех поддерживаемых версиях Scala.
+В Scala 2.12+ можно как опускать этот импорт,
+так и использовать его:
 
 ```tut:book:silent
 import cats.syntax.either._ // for map and flatMap
@@ -57,11 +57,11 @@ for {
 } yield a + b
 ```
 
-### Creating Instances
+### Создание экземпляров
 
-In addition to creating instances of `Left` and `Right` directly,
-we can also import the `asLeft` and `asRight` extension methods
-from [`cats.syntax.either`][cats.syntax.either]:
+В дополнение к созданию экземпляров `Left` и `Right` напрямую,
+мы так же можем импортировать методы расширения `asLeft` и `asRight`
+из [`cats.syntax.either`][cats.syntax.either]:
 
 ```tut:book:silent
 import cats.syntax.either._ // for asRight
@@ -77,13 +77,13 @@ for {
 } yield x*x + y*y
 ```
 
-These "smart constructors" have
-advantages over `Left.apply` and `Right.apply`
-because they return results of type `Either`
-instead of `Left` and `Right`.
-This helps avoid type inference bugs
-caused by over-narrowing,
-like the bug in the example below:
+Эти "умные конструкторы"
+лучше `Left.apply` и `Right.apply`,
+потому что они возвращают тип `Either`
+вместо `Left` и `Right`.
+Это помогает избежать ошибок механизма вывода типов,
+вызыванными over-narrowing,
+как в примере ниже:
 
 ```tut:book:fail
 def countPositive(nums: List[Int]) =
@@ -96,17 +96,17 @@ def countPositive(nums: List[Int]) =
   }
 ```
 
-This code fails to compile for two reasons:
+Этот код не компилируется по двум причинам:
 
-1. the compiler infers the type of the accumulator
-   as `Right` instead of `Either`;
-2. we didn't specify type parameters for `Right.apply`
-   so the compiler infers the left parameter as `Nothing`.
+1. компилятор выводит тип аккумулятора
+   `Right` вместо `Either`;
+2. мы не указываем типовый параметр для `Right.apply`,
+   поэтому компилятор выводит тип левого параметра `Nothing`.
 
-Switching to `asRight` avoids both of these problems.
-`asRight` has a return type of `Either`,
-and allows us to completely specify the type
-with only one type parameter:
+Использование `asRight` решает обе проблемы.
+`asRight` возвращает тип `Either`,
+и мы можем полностью указать тип
+всего одним типовым параметром:
 
 ```tut:book:silent
 def countPositive(nums: List[Int]) =
@@ -124,32 +124,32 @@ countPositive(List(1, 2, 3))
 countPositive(List(1, -2, 3))
 ```
 
-`cats.syntax.either` adds
-some useful extension methods
-to the `Either` companion object.
-The `catchOnly` and `catchNonFatal` methods
-are great for capturing `Exceptions`
-as instances of `Either`:
+`cats.syntax.either` добавляет
+несколько полезных методов расширения
+в объект-компаньон `Either`.
+Методы `catchOnly` и `catchNonFatal`
+великолепны для захвата `Exceptions`
+в экземпляры `Either`:
 
 ```tut:book
 Either.catchOnly[NumberFormatException]("foo".toInt)
 Either.catchNonFatal(sys.error("Badness"))
 ```
 
-There are also methods for creating an `Either`
-from other data types:
+Также добавлены методы для конструирования `Either`
+из других типов данных:
 
 ```tut:book
 Either.fromTry(scala.util.Try("foo".toInt))
 Either.fromOption[String, Int](None, "Badness")
 ```
 
-### Transforming Eithers
+### Преобразования Either
 
-`cats.syntax.either` also adds
-some useful methods for instances of `Either`.
-We can use `orElse` and `getOrElse` to extract
-values from the right side or return a default:
+Ещё `cats.syntax.either` добавляет
+несколько полезных методов для экземпляров `Either`.
+Можно использовать `orElse` и `getOrElse` для вытаскивания
+значений из правой части или получения дефолтного значения:
 
 ```tut:book:silent
 import cats.syntax.either._
@@ -160,16 +160,16 @@ import cats.syntax.either._
 "Error".asLeft[Int].orElse(2.asRight[String])
 ```
 
-The `ensure` method allows us
-to check whether the right-hand value
-satisfies a predicate:
+С помощью метода `ensure`
+можно проверить, удовлетворяет ли значение правой части
+предикату:
 
 ```tut:book
 -1.asRight[String].ensure("Must be non-negative!")(_ > 0)
 ```
 
-The `recover` and `recoverWith` methods
-provide similar error handling to their namesakes on `Future`:
+С помощью методов `recover` и `recoverWith`
+можно обработать ошибки аналогично `Future`:
 
 ```tut:book
 "error".asLeft[Int].recover {
@@ -181,7 +181,7 @@ provide similar error handling to their namesakes on `Future`:
 }
 ```
 
-There are `leftMap` and `bimap` methods to complement `map`:
+Методы `leftMap` и `bimap` дополняют метод `map`:
 
 ```tut:book
 "foo".asLeft[Int].leftMap(_.reverse)
@@ -189,22 +189,22 @@ There are `leftMap` and `bimap` methods to complement `map`:
 "bar".asLeft[Int].bimap(_.reverse, _ * 7)
 ```
 
-The `swap` method lets us exchange left for right:
+Метод `swap` меняет местами левую и правую часть:
 
 ```tut:book
 123.asRight[String]
 123.asRight[String].swap
 ```
 
-Finally, Cats adds a host of conversion methods:
-`toOption`, `toList`, `toTry`, `toValidated`, and so on.
+Наконец, Cats определяет множество методов для преобразований:
+`toOption`, `toList`, `toTry`, `toValidated`, и так далее.
 
-### Error Handling
+### Обработка ошибок
 
-`Either` is typically used to implement fail-fast error handling.
-We sequence computations using `flatMap` as usual.
-If one computation fails,
-the remaining computations are not run:
+`Either` часто используется для fail-fast обработки ошибок.
+Обычно мы строим цепочку вычислений через `flatMap`.
+Если какое-нибудь вычисление выдаст ошибку,
+оставшиеся вычисления не запустятся:
 
 ```tut:book
 for {
@@ -215,22 +215,22 @@ for {
 } yield c * 100
 ```
 
-When using `Either` for error handling,
-we need to determine
-what type we want to use to represent errors.
-We could use `Throwable` for this:
+При использовании `Either` для обработки ошибок
+нам надо определить,
+каким типом представлять ошибки.
+Можно было бы использовать `Throwable`:
 
 ```tut:book:silent
 type Result[A] = Either[Throwable, A]
 ```
 
-This gives us similar semantics to `scala.util.Try`.
-The problem, however, is that `Throwable`
-is an extremely broad type.
-We have (almost) no idea about what type of error occurred.
+Получается семантика, аналогичная `scala.util.Try`.
+Но есть проблема: `Throwable`
+- слишком широкий тип.
+Мы (почти) не сможем определить, какая именно ошибка произошла.
 
-Another approach is to define an algebraic data type
-to represent errors that may occur in our program:
+Другой подход - сделать алгебраический тип
+для представления возможных ошибок:
 
 ```tut:book:silent
 object wrapper {
@@ -252,11 +252,11 @@ case class User(username: String, password: String)
 type LoginResult = Either[LoginError, User]
 ```
 
-This approach solves the problems we saw with `Throwable`.
-It gives us a fixed set of expected error types
-and a catch-all for anything else that we didn't expect.
-We also get the safety of exhaustivity checking
-on any pattern matching we do:
+Этот подход решает проблемы, возникающие с `Throwable`.
+Получается фиксированное множество ожидаемых типов ошибок
+и catch-all для остальных неучтенных ошибок.
+Также мы получаем полную проверку
+в pattern matching:
 
 ```tut:book:silent
 // Choose error-handling behaviour based on type:
@@ -281,30 +281,30 @@ result1.fold(handleError, println)
 result2.fold(handleError, println)
 ```
 
-### Exercise: What is Best?
+### Упражнение: Какой же вариант лучший?
 
-Is the error handling strategy in the previous examples
-well suited for all purposes?
-What other features might we want from error handling?
+Является ли стратегия обработки ошибок в предыдущих примерах
+подходящей для всех случаев?
+Что ещё может понадобиться в процессе обработки ошибок?
 
 <div class="solution">
-This is an open question.
-It's also kind of a trick question---the
-answer depends on the semantics we're looking for.
-Some points to ponder:
+Это открытый вопрос.
+Также это trick question---ответ
+зависит от нужной семантики.
+Пункты для размышления:
 
-- Error recovery is important when processing large jobs.
-  We don't want to run a job for a day
-  and then find it failed on the last element.
+- Восстановление после ошибок важно при выполнении больших задач.
+  Мы не хотим, чтобы после исполнения задачи длиной в день
+  возникла ошибка на последнем этапе.
 
-- Error reporting is equally important.
-  We need to know what went wrong,
-  not just that something went wrong.
+- Репортинг ошибок не менее важен.
+  Нужно знать, что именно пошло не так,
+  а не просто факт ошибки.
 
-- In a number of cases, we want to collect all the errors,
-  not just the first one we encountered.
-  A typical example is validating a web form.
-  It's a far better experience to
-  report all errors to the user when they submit a form
-  than to report them one at a time.
+- В ряде случаев нужно собрать все ошибки,
+  а не только первые случившиеся.
+  Типичный пример - валидация веб-форм.
+  Намного лучше
+  указать на все ошибки пользователю во время отправки формы,
+  чем показывать их по одной.
 </div>
