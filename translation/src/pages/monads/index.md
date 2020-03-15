@@ -71,7 +71,7 @@ def divide(a: Int, b: Int): Option[Int] =
 
 Каждый из этих методов может "упасть", возвращая `None`.
 Метод `flatMap` позволяет игнорировать это,
-когда мы выполняем последовательные операции:
+когда мы описываем последовательность таких операций:
 
 ```tut:book:silent
 def stringDivideBy(aStr: String, bStr: String): Option[Int] =
