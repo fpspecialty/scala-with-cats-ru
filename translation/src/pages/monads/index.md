@@ -211,7 +211,7 @@ def doSomethingVeryLongRunning: Future[Int] =
 только после завершения предыдущего этапа.
 Это отражено в типовой диаграмме для `flatMap`
 на рисунке [@fig:monads:future-type-chart],
-который показывает параметр функции типа `A => Future[B]`.
+где можно увидеть параметр-функцию типа `A => Future[B]`.
 
 ![Типовая диаграмма: flatMap для Future](src/pages/monads/future-flatmap.pdf+svg){#fig:monads:future-type-chart}
 
