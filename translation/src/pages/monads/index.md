@@ -286,7 +286,7 @@ m.flatMap(f).flatMap(g) == m.flatMap(x => f(x).flatMap(g))
 
 Каждая монада также является функтором.
 Мы можем определить `map` одинаково для каждой монады,
-используя существующие методы, `flatMap` и `pure`:
+используя существующие методы `flatMap` и `pure`:
 
 ```tut:book:silent
 import scala.language.higherKinds
