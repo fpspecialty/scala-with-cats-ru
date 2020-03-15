@@ -228,7 +228,7 @@ def doSomethingVeryLongRunning: Future[Int] =
 - `flatMap`[^bind], типа `(F[A], A => F[B]) => F[B]`.
 
 [^bind]: В некоторых библиотеках и языках,
-особенно в Scalaz и Haskell,
+а именно: в Scalaz и Haskell,
 `pure` называется `point` или `return`, а
 `flatMap` называется `bind` или `>>=`.
 Различие состоит только в терминологии.
