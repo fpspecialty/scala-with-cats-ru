@@ -39,7 +39,7 @@ List(1, 2, 3).map(n => n + 1)
 показанных на рисунке [@fig:functors:list-option-either-type-chart],
 связывает поведение `map` с разными типами данных.
 
-![Type chart: mapping over List, Option, and Either](src/pages/functors/list-option-either-map.pdf+svg){#fig:functors:list-option-either-type-chart}
+![Диаграмма: отображение List, Option, и Either](src/pages/functors/list-option-either-map.pdf+svg){#fig:functors:list-option-either-type-chart}
 
 Поскольку `map` оставляет структуру контекста неизменной, 
 мы можем использовать цепочку его вызовов, чтобы упорядочить несколько вычислений 
@@ -80,7 +80,7 @@ List(1, 2, 3).
 имеет ту же форму, что и сигнатуры выше. 
 Тем не менее, поведение сильно отличается.
 
-![Type chart: mapping over a Future](src/pages/functors/future-map.pdf+svg){#fig:functors:future-type-chart}
+![Диаграмма: отображение Future](src/pages/functors/future-map.pdf+svg){#fig:functors:future-type-chart}
 
 Когда мы работаем с `Future`, у нас нет никаких гарантий
 относительно его внутреннего состояния. 
@@ -197,7 +197,7 @@ val result2 = Await.result(future2, 1.second)
  - подставить функцию `A => B`;
  - вернуться к `MyFunc[B]`.
 
-![Type chart: mapping over a Function1](src/pages/functors/function-map.pdf+svg){#fig:functors:function-type-chart}
+![Диаграмма: отображение Function1](src/pages/functors/function-map.pdf+svg){#fig:functors:function-type-chart}
 
 Другими словами, `map` над `Function1` является композицией функций:
 
@@ -276,7 +276,7 @@ func1.map(func2)
 Общая диаграмма типов показана на 
 рисунке [@fig:functors:functor-type-chart].
 
-![Type chart: generalised functor map](src/pages/functors/generic-map.pdf+svg){#fig:functors:functor-type-chart}
+![Диаграмма: обобщенное отображение функторов](src/pages/functors/generic-map.pdf+svg){#fig:functors:functor-type-chart}
 
 Cats определяет `Functor` как тайпкласс,
 [`cats.Functor`][cats.Functor],
