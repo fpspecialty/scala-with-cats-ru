@@ -14,7 +14,7 @@
 как мы увидели в упражнении выше.
 Мы рассмотрим `Applicative` в разделе [@sec:applicatives].
 
-Ниже можно увидеть несколько примеров использования методов `pure`, `flatMap` и `map`:
+Вот несколько примеров использования `pure`, `flatMap` и `map`:
 
 ```tut:book:silent
 import cats.Monad
