@@ -195,7 +195,7 @@ val result2 = Await.result(future2, 1.second)
 
  - начать с `MyFunc[A]`;
  - подставить функцию `A => B`;
- - вернуться к `MyFunc[B]`.
+ - получить `MyFunc[B]`.
 
 ![Диаграмма: отображение Function1](src/pages/functors/function-map.pdf+svg){#fig:functors:function-type-chart}
 
