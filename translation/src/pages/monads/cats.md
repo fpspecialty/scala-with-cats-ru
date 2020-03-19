@@ -83,8 +83,8 @@ import scala.concurrent.duration._
 val fm = Monad[Future]
 ```
 
-Импортирование `ExecutionContext` в область видимости
-исправляет неявное разрешение, требуемое для создания экземпляра:
+Добавление `ExecutionContext` в область видимости
+удовлетворяет все потребности в неявных параметрах, позволяя использовать экземпляр:
 
 ```tut:book:silent
 import scala.concurrent.ExecutionContext.Implicits.global
