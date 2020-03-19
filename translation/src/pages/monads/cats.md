@@ -68,11 +68,10 @@ Monad[Vector].flatMap(Vector(1, 2, 3))(a => Vector(a, a*10))
 
 Cats также предоставляет экземпляр `Monad` для `Future`.
 В отличие от методов класса `Future`,
-методы `pure` и `flatMap` монады
-не могут принимать неявные `ExecutionContext` параметры
-(так как параметры не относятся к определениям в трейте `Monad`).
-Чтобы обойти это, Cats требует от нас иметь `ExecutionContext` в области видимости,
-когда мы создаём `Monad` для `Future`:
+у монад методы `pure` и `flatMap`
+не могут принимать неявный параметр `ExecutionContext`
+(потому что он не входит в определение трейта `Monad`).
+Чтобы использовать `Future` как монаду несмотря на это ограничение, Cats требует, чтобы `ExecutionContext` был доступен в области видимости:
 
 ```tut:book:silent
 import cats.instances.future._ // для Monad
