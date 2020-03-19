@@ -66,7 +66,7 @@ import cats.instances.vector._ // для Monad
 Monad[Vector].flatMap(Vector(1, 2, 3))(a => Vector(a, a*10))
 ```
 
-Cats также предоставляет `Monad` для `Future`.
+Cats также предоставляет экземпляр `Monad` для `Future`.
 В отличие от методов класса `Future`,
 методы `pure` и `flatMap` монады
 не могут принимать неявные `ExecutionContext` параметры
