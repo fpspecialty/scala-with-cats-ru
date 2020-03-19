@@ -397,7 +397,7 @@ val f2 = f andThen f
 import scala.language.higherKinds
 ```
 
-или добавив следующее в `scalacOptions` in `build.sbt`:
+или добавив следующее в `scalacOptions` в `build.sbt`:
 
 ```scala
 scalacOptions += "-language:higherKinds"
