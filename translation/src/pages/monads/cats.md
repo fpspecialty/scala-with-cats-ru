@@ -40,7 +40,7 @@ val list3 = Monad[List].map(list2)(a => a + 123)
 ### Экземпляры по умолчанию
 
 Cats предоставляет экземпляры для всех монад в стандартной библиотеке
-(`Option`, `List`, `Vector` и т.д.) с помощью пакета [`cats.instances`][cats.instances]:
+(`Option`, `List`, `Vector` и т.д.) в составе пакета [`cats.instances`][cats.instances]:
 
 ```tut:book:silent
 import cats.instances.option._ // для Monad
