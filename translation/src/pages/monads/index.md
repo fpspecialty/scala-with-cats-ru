@@ -1,65 +1,65 @@
-# Monads {#sec:monads}
+# Монады {#sec:monads}
 
-*Monads* are one of the most common abstractions in Scala.
-Many Scala programmers quickly become intuitively familiar with monads,
-even if we don't know them by name.
+*Монады* — одна из самых распространенных абстракций в Scala.
+Для многих Scala-разработчиков монады быстро становятся интуитивно понятными, 
+даже если название «монады» остаётся незнакомым.
 
-Informally, a monad is anything with a constructor and a `flatMap` method.
-All of the functors we saw in the last chapter are also monads,
-including `Option`, `List`, and `Future`.
-We even have special syntax to support monads: for comprehensions.
-However, despite the ubiquity of the concept,
-the Scala standard library lacks
-a concrete type to encompass "things that can be `flatMapped`".
-This type class is one of the benefits brought to us by Cats.
+Говоря неформально, монада — это нечто такое, у чего есть конструктор и метод `flatMap`.
+Все функторы, которые мы видели в последней главе — тоже монады,
+включая `Option`, `List`, и `Future`.
+У нас даже есть специальный синтаксис для работы с монадами: «for-выражения» (for comprehensions).
+Тем не менее, несмотря на распространённость концепции,
+в стандартной библиотеке Scala отсутствует
+какой-либо конкретный тип для описания «вещей, к которым применим `flatMap`».
+Такой тайпкласс — это одно из преимуществ, которое даёт нам библиотека Cats.
 
-In this chapter we will take a deep dive into monads.
-We will start by motivating them with a few examples.
-We'll proceed to their formal definition and their implementation in Cats.
-Finally, we'll tour some interesting monads that you may not have seen,
-providing introductions and examples of their use.
+В этой главе мы глубоко вникнем в монады.
+Начнем с объяснения монад на примерах, 
+затем перейдем к формальному определению и реализации в Cats.
+А в конце мы устроим экскурсию по некоторым интересным монадам, о существовании которых вы, возможно, не знали. 
+И разумеется, сопроводим их инструкциями и примерами.
 
-## What is a Monad?
+## Что такое монада?
 
-This is the question that has been posed in a thousand blog posts,
-with explanations and analogies involving concepts as diverse as
-cats, Mexican food, space suits full of toxic waste,
-and monoids in the category of endofunctors (whatever that means).
-We're going to solve the problem of explaining monads once and for all
-by stating very simply:
+Этот вопрос был освещён в тысяче блог-постов, 
+подкреплённых такими разнообразными объяснениями и аналогиями, как коты, 
+мексиканская еда, космические костюмы, полные токсичных отходов, 
+и моноиды в категории эндофункторов (что бы это ни означало).
+Мы намерены решить проблему объяснения монад раз и навсегда
+одним простым утверждением:
 
-> A monad is a mechanism for *sequencing computations*.
+> Монада — это механизм для *последовательных вычислений*.
 
-That was easy! Problem solved, right?
-But then again, last chapter we said functors
-were a control mechanism for exactly the same thing.
-Ok, maybe we need some more discussion...
+Это было легко! Проблема решена, верно?
+Но опять же, в последней главе мы сказали, что функторы
+являются аналогичным механизмом для тех же вещей.
+Ладно, может, нам нужно еще немного обсуждения...
 
-In Section [@sec:functors:examples]
-we said that functors allow us
-to sequence computations ignoring some complication.
-However, functors are limited in that
-they only allow this complication
-to occur once at the beginning of the sequence.
-They don't account further complications
-at each step in the sequence.
+В разделе [@sec:functors:examples]
+было сказано, что функторы позволяют
+упорядочить вычисления, игнорируя некоторое «усложнение».
+Однако, функторы ограничены тем, что
+они допускают, чтобы это «усложнение» появилось
+один раз в начале последовательности.
+Они не обрабатывают дальнейшие «усложнения»
+на каждом этапе последовательности.
 
-This is where monads come in.
-A monad's `flatMap` method allows us to specify what happens next,
-taking into account an intermediate complication.
-The `flatMap` method of `Option` takes intermediate `Options` into account.
-The `flatMap` method of `List` handles intermediate `Lists`. And so on.
-In each case, the function passed to `flatMap` specifies
-the application-specific part of the computation,
-and `flatMap` itself takes care of the complication
-allowing us to `flatMap` again.
-Let's ground things by looking at some examples.
+Вот где монады вступают в дело.
+Их метод `flatMap` позволяет определить что будет дальше,
+учитывая промежуточное «усложнение».
+Метод `flatMap` у `Option` работает с промежуточным `Option`.
+Метод `flatMap` у `List` обрабатывает промежуточный `List`. И так далее.
+В каждом случае, функция, передаваемая во `flatMap`, определяет
+зависящую от области применения часть вычисления,
+и сам `flatMap` избавляется от «усложнения»,
+позволяя применить `flatMap` ещё раз.
+Давайте внесём ясность, посмотрев на некоторые примеры.
 
 **Options**
 
-`Option` allows us to sequence computations
-that may or may not return values.
-Here are some examples:
+`Option` позволяет упорядочить такие вычисления,
+каждое из которых может вернуть, а может и не вернуть значение.
+Вот несколько примеров:
 
 ```tut:book:silent
 def parseInt(str: String): Option[Int] =
@@ -69,9 +69,9 @@ def divide(a: Int, b: Int): Option[Int] =
   if(b == 0) None else Some(a / b)
 ```
 
-Each of these methods may "fail" by returning `None`.
-The `flatMap` method allows us to ignore this
-when we sequence operations:
+Каждый из этих методов может "упасть", возвращая `None`.
+Метод `flatMap` позволяет игнорировать это,
+когда мы описываем последовательность таких операций:
 
 ```tut:book:silent
 def stringDivideBy(aStr: String, bStr: String): Option[Int] =
@@ -82,24 +82,24 @@ def stringDivideBy(aStr: String, bStr: String): Option[Int] =
   }
 ```
 
-We know the semantics well:
+Нам хорошо известна семантика:
 
-- the first call to `parseInt` returns a `None` or a `Some`;
-- if it returns a `Some`, the `flatMap` method calls our function and passes us the integer `aNum`;
-- the second call to `parseInt` returns a `None` or a `Some`;
-- if it returns a `Some`, the `flatMap` method calls our function and passes us `bNum`;
-- the call to `divide` returns a `None` or a `Some`, which is our result.
+- первый вызов `parseInt` возвращает `None` или `Some`;
+- если он вернёт `Some`, метод `flatMap` вызывает функцию и передает целое число `aNum`;
+- второй вызов `parseInt` возвращает `None` или `Some`;
+- если он вернёт `Some`, метод `flatMap` вызывает функцию и передает целое число `bNum`;
+- вызов `divide` возвращает `None` или `Some`, который и будет результатом.
 
-At each step, `flatMap` chooses whether to call our function,
-and our function generates the next computation in the sequence.
-This is shown in Figure [@fig:monads:option-type-chart].
+На каждом шаге `flatMap` выбирает, вызывать ли функцию,
+которая формирует следующее вычисление в последовательности.
+Это показано на рисунке [@fig:monads:option-type-chart].
 
-![Type chart: flatMap for Option](src/pages/monads/option-flatmap.pdf+svg){#fig:monads:option-type-chart}
+![Типовая диаграмма: flatMap для Option](src/pages/monads/option-flatmap.pdf+svg){#fig:monads:option-type-chart}
 
-The result of the computation is an `Option`,
-allowing us to call `flatMap` again and so the sequence continues.
-This results in the fail-fast error handling behaviour that we know and love,
-where a `None` at any step results in a `None` overall:
+Результатом вычисления является `Option`,
+позволяющий вызывать `flatMap` ещё раз, таким образом продолжая последовательность.
+Это приводит к раннему завершению при возникновении ошибок (fail-fast), которое мы знаем и любим,
+при котором появление `None` на любом этапе приводит к получению `None` в итоге:
 
 ```tut:book
 stringDivideBy("6", "2")
@@ -108,13 +108,13 @@ stringDivideBy("6", "foo")
 stringDivideBy("bar", "2")
 ```
 
-Every monad is also a functor (see below for proof),
-so we can rely on both `flatMap` and `map`
-to sequence computations
-that do and don't introduce a new monad.
-Plus, if we have both `flatMap` and `map`
-we can use for comprehensions
-to clarify the sequencing behaviour:
+Каждая монада является функтором (см доказательство ниже),
+так что мы можем использовать и `flatMap`, и `map`,
+для последовательного выполнения как вычислений, 
+снова возвращающих монаду, так и вычислений, которые с монадами не связаны.
+В дополнение к этому, если у нас есть как `flatMap`, так и `map`,
+мы можем использовать for-выражения
+для более ясного и выразительного описания последовательности:
 
 ```tut:book:silent
 def stringDivideBy(aStr: String, bStr: String): Option[Int] =
@@ -127,10 +127,10 @@ def stringDivideBy(aStr: String, bStr: String): Option[Int] =
 
 **Lists**
 
-When we first encounter `flatMap` as budding Scala developers,
-we tend to think of it as a pattern for iterating over `Lists`.
-This is reinforced by the syntax of for comprehensions,
-which look very much like imperative for loops:
+Когда мы, будучи начинающими Scala-разработчиками, впервые сталкиваемся c `flatMap`,
+мы склонны думать о нём как о способе итерирования по значениям в `List`.
+Это усугубляется синтаксисом for-выражений,
+которые выглядят совсем как императивные циклы `for`:
 
 ```tut:book
 for {
@@ -139,38 +139,37 @@ for {
 } yield (x, y)
 ```
 
-However, there is another mental model we can apply
-that highlights the monadic behaviour of `List`.
-If we think of `Lists` as sets of intermediate results,
-`flatMap` becomes a construct that calculates
-permutations and combinations.
+Но мы можем воспользоваться и другой ментальной моделью,
+которая подчёркнёт монадическое поведение `List`.
+Если рассматривать списки как наборы промежуточных результатов,
+`flatMap` будет выражать вычисление их перестановок и комбинаций.
 
-For example, in the for comprehension above
-there are three possible values of `x` and two possible values of `y`.
-This means there are six possible values of `(x, y)`.
-`flatMap` is generating these combinations from our code,
-which states the sequence of operations:
+Например, в приведённом выше for-выражении
+возможны три значения `x` и два значения `y`.
+Это означает, что существует шесть возможных значений `(x, y)`.
+`flatMap` генерирует эти комбинации из нашего кода,
+который устанавливает последовательность действий:
 
-- get `x`
-- get `y`
-- create a tuple `(x, y)`
+- получить `x`
+- получить `y`
+- создать кортеж `(x, y)`
 
 <!--
-The type chart in Figure [@fig:monads:list-type-chart]
-illustrates this behaviour[^list-lengths].
+Типовая диаграмма на рисунке [@fig:monads:list-type-chart]
+иллюстрирует это поведение[^list-lengths].
 
-![Type chart: flatMap for List](src/pages/monads/list-flatmap.pdf+svg){#fig:monads:list-type-chart}
+![Типовая диаграмма: flatMap для List](src/pages/monads/list-flatmap.pdf+svg){#fig:monads:list-type-chart}
 
-[^list-lengths]: Although the result of `flatMap` (`List[B]`)
-is the same type as the result of the user-supplied function,
-the end result is actually a larger list
-created from combinations of intermediate `As` and `Bs`.
+[^list-lengths]: Хотя результат `flatMap` (`List[B]`)
+имеет тот же тип, что и результат выполнения пользовательской функции,
+конечный результат на самом деле представляет собой больший список,
+созданный из комбинаций промежуточных листов типов `A` и `B`.
 -->
 
 **Futures**
 
-`Future` is a monad that sequences computations
-without worrying that they are asynchronous:
+`Future` — это монада, которая позволяет упорядочить вычисления,
+не беспокоясь о том, что они асинхронные:
 
 ```tut:book:silent
 import scala.concurrent.Future
@@ -187,15 +186,15 @@ def doSomethingVeryLongRunning: Future[Int] =
   } yield result1 + result2
 ```
 
-Again, we specify the code to run at each step,
-and `flatMap` takes care of all the horrifying
-underlying complexities of thread pools and schedulers.
+Еще раз, мы описываем код, который должен быть выполнен на каждом шаге,
+а `flatMap` позаботится обо всех ужасающих
+внутренних сложностях пула потоков и планировщиков.
 
-If you've made extensive use of `Future`,
-you'll know that the code above
-is running each operation *in sequence*.
-This becomes clearer if we expand out the for comprehension
-to show the nested calls to `flatMap`:
+Если вы часто использовали `Future`,
+то уже знаете, что вышеприведенный код 
+выполняет каждую операцию *последовательно*.
+Будет нагляднее, если мы развернём for-выражение,
+чтобы показать вложенные вызовы `flatMap`:
 
 ```tut:book:silent
 def doSomethingVeryLongRunning: Future[Int] =
@@ -206,42 +205,42 @@ def doSomethingVeryLongRunning: Future[Int] =
   }
 ```
 
-Each `Future` in our sequence is created
-by a function that receives the result from a previous `Future`.
-In other words, each step in our computation can only start
-once the previous step is finished.
-This is born out by the type chart for `flatMap`
-in Figure [@fig:monads:future-type-chart],
-which shows the function parameter of type `A => Future[B]`.
+Каждая `Future` в последовательности создана
+функцией, которая принимает результат из предыдущей `Future`.
+Другими словами, каждый этап вычисления может начаться 
+только после завершения предыдущего этапа.
+Это отражено в типовой диаграмме для `flatMap`
+на рисунке [@fig:monads:future-type-chart],
+где можно увидеть параметр-функцию типа `A => Future[B]`.
 
-![Type chart: flatMap for Future](src/pages/monads/future-flatmap.pdf+svg){#fig:monads:future-type-chart}
+![Типовая диаграмма: flatMap для Future](src/pages/monads/future-flatmap.pdf+svg){#fig:monads:future-type-chart}
 
-We *can* run futures in parallel, of course,
-but that is another story and shall be told another time.
-Monads are all about sequencing.
+Разумеется, мы *можем* запускать `Future` и параллельно,
+но это другая история, и будет рассказана в другой раз.
+Монады — о последовательных вычислениях.
 
-### Definition of a Monad
+### Определение монады
 
-While we have only talked about `flatMap` above,
-monadic behaviour is formally captured in two operations:
+Ранее мы говорили только о `flatMap`,
+но формально монадическое поведение определяется двумя операциями:
 
-- `pure`, of type `A => F[A]`;
-- `flatMap`[^bind], of type `(F[A], A => F[B]) => F[B]`.
+- `pure`, типа `A => F[A]`;
+- `flatMap`[^bind], типа `(F[A], A => F[B]) => F[B]`.
 
-[^bind]: In some libraries and languages,
-notably Scalaz and Haskell,
-`pure` is referred to as `point` or `return` and
-`flatMap` is referred to as `bind` or `>>=`.
-This is purely a difference in terminology.
-We'll use the term `flatMap` for compatibility
-with Cats and the Scala standard library.
+[^bind]: В некоторых библиотеках и языках,
+а именно: в Scalaz и Haskell,
+`pure` называется `point` или `return`, а
+`flatMap` называется `bind` или `>>=`.
+Различие состоит только в терминологии.
+Мы будем использовать термин `flatMap` для совместимости
+с Cats и стандартной библиотекой Scala.
 
-`pure` abstracts over constructors,
-providing a way to create a new monadic context from a plain value.
-`flatMap` provides the sequencing step we have already discussed,
-extracting the value from a context and generating
-the next context in the sequence.
-Here is a simplified version of the `Monad` type class in Cats:
+`pure` абстрагирует конструкторы,
+предоставляя способ создания нового монадического контекста из обычного значения.
+`flatMap` обеспечивает шаг последовательности, который мы уже обсудили,
+извлекающий значение из контекста и формирующий
+следующий контекст в последовательности.
+Ниже представлена упрощённая версия тайпкласса `Monad` в Cats:
 
 ```tut:book:silent
 import scala.language.higherKinds
@@ -254,40 +253,40 @@ trait Monad[F[_]] {
 ```
 
 <div class="callout callout-warning">
-*Monad Laws*
+*Монадические законы*
 
-`pure` and `flatMap` must obey a set of laws
-that allow us to sequence operations freely
-without unintended glitches and side-effects:
+`pure` и `flatMap` должны подчиняться законам,
+которые позволяют нам свободно упорядочивать операции
+без непреднамеренных сбоев и побочных эффектов:
 
-*Left identity*: calling `pure`
-and transforming the result with `func`
-is the same as calling `func`:
+*Левая тождественность*: применить `pure`
+и преобразовать результат с помощью `func`,
+это то же самое, что просто применить `func`:
 
 ```scala
 pure(a).flatMap(func) == func(a)
 ```
 
-*Right identity*: passing `pure` to `flatMap`
-is the same as doing nothing:
+*Правая тождественность*: передать `pure` во `flatMap`,
+это то же самое, что ничего не делать с исходным значением:
 
 ```scala
 m.flatMap(pure) == m
 ```
 
-*Associativity*: `flatMapping` over two functions `f` and `g`
-is the same as `flatMapping` over `f` and then `flatMapping` over `g`:
+*Ассоциативность*: применить `flatMap` к двум функциям `f` и `g`,
+это то же самое, что и применить `flatMap` к `f` и, затем, применить `flatMap` к `g`:
 
 ```scala
 m.flatMap(f).flatMap(g) == m.flatMap(x => f(x).flatMap(g))
 ```
 </div>
 
-### Exercise: Getting Func-y
+### Упражнение: Применяем func-ции.
 
-Every monad is also a functor.
-We can define `map` in the same way for every monad
-using the existing methods, `flatMap` and `pure`:
+Каждая монада также является функтором.
+Мы можем определить `map` одинаково для каждой монады,
+используя существующие методы `flatMap` и `pure`:
 
 ```tut:book:silent
 import scala.language.higherKinds
@@ -302,14 +301,14 @@ trait Monad[F[_]] {
 }
 ```
 
-Try defining `map` yourself now.
+Сейчас попробуйте определить `map` самостоятельно.
 
 <div class="solution">
-At first glance this seems tricky,
-but if we follow the types we'll see there's only one solution.
-We are passed a `value` of type `F[A]`.
-Given the tools available there's only one thing we can do:
-call `flatMap`:
+На первый взгляд, это кажется запутанным,
+но если следовать типам, мы увидим только одно решение.
+Нам передали `value` типа `F[A]`.
+Учитывая доступные средства, мы можем сделать только одно:
+применить `flatMap`:
 
 ```tut:book:silent
 trait Monad[F[_]] {
@@ -322,11 +321,11 @@ trait Monad[F[_]] {
 }
 ```
 
-We need a function of type `A => F[B]` as the second parameter.
-We have two function building blocks available:
-the `func` parameter of type `A => B`
-and the `pure` function of type `A => F[A]`.
-Combining these gives us our result:
+Вторым параметром нам нужна функция типа `A => F[B]`.
+У нас есть два функциональных блока:
+параметр `func` типа `A => B`
+и функция `pure` типа `A => F[A]`.
+Объединив их, получаем результат:
 
 ```tut:book:silent
 trait Monad[F[_]] {
