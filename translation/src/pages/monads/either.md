@@ -147,8 +147,8 @@ Either.fromOption[String, Int](None, "Badness")
 
 Ещё `cats.syntax.either` добавляет
 несколько полезных методов для экземпляров `Either`.
-Можно использовать `orElse` и `getOrElse` для вытаскивания
-значений из правой части или получения дефолтного значения:
+Можно использовать `orElse` и `getOrElse` для извлечения значений из `Right`
+с возможностью подставить значение по умолчанию в случае неудачи:
 
 ```tut:book:silent
 import cats.syntax.either._
