@@ -188,7 +188,8 @@ import cats.syntax.either._
 "bar".asLeft[Int].bimap(_.reverse, _ * 7)
 ```
 
-Метод `swap` меняет местами левую и правую часть:
+Метод `swap` перемещает значение из `Left` в `Right` и наоборот,
+соответствующим образом переставляя типовые параметры `Either`.
 
 ```tut:book
 123.asRight[String]
