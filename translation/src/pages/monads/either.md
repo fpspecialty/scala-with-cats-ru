@@ -135,7 +135,7 @@ Either.catchOnly[NumberFormatException]("foo".toInt)
 Either.catchNonFatal(sys.error("Badness"))
 ```
 
-Также добавлены методы для конструирования `Either`
+Существуют также методы для конструирования `Either`
 из других типов данных:
 
 ```tut:book
