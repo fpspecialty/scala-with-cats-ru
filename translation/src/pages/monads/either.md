@@ -168,7 +168,7 @@ import cats.syntax.either._
 ```
 
 С помощью методов `recover` и `recoverWith`
-можно обработать ошибки аналогично `Future`:
+можно обработать ошибки аналогично тому, как это реализовано для `Future`:
 
 ```tut:book
 "error".asLeft[Int].recover {
