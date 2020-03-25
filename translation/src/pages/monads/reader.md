@@ -1,22 +1,22 @@
-## The Reader Monad {#sec:monads:reader}
+## Монада Reader ("Читатель") {#sec:monads:reader}
 
-[`cats.data.Reader`][cats.data.Reader] is a monad
-that allows us to sequence operations that depend on some input.
-Instances of `Reader` wrap up functions of one argument,
-providing us with useful methods for composing them.
+Монада [`cats.data.Reader`][cats.data.Reader]
+позволяет работать с операциями, зависящих от некоторых общих входных данных.
+Экземпляры `Reader` оборачивают функции одного аргумента,
+предоставляя методы для их композиции.
 
-One common use for `Readers` is dependency injection.
-If we have a number of operations
-that all depend on some external configuration,
-we can chain them together using a `Reader`
-to produce one large operation that
-accepts the configuration as a parameter
-and runs our program in the order specified.
+Монада `Reader` часто используется для внедрения зависимостей (dependency injection).
+В случае, когда у нас есть набор операций,
+зависящих от общей внешней конфигурации,
+мы можем скомпозировать их в последовательность с помощью `Reader`.
+В результате мы получим одну большую операцию,
+принимающую конфигурацию в качестве параметра
+и запускающую нашу программу в указанном порядке.
 
-### Creating and Unpacking Readers
+### Создание и распаковка Reader
 
-We can create a `Reader[A, B]` from a function `A => B`
-using the `Reader.apply` constructor:
+Экземпляр `Reader[A, B]` можно создать из функции `A => B`,
+используя конструктор `Reader.apply`:
 
 ```tut:book:silent
 import cats.data.Reader
@@ -29,28 +29,28 @@ val catName: Reader[Cat, String] =
   Reader(cat => cat.name)
 ```
 
-We can extract the function again
-using the `Reader's` `run` method
-and call it using `apply` as usual:
+Мы можем извлечь функцию обратно,
+используя метод `run`,
+и вызвать её через `apply`, как обычно:
 
 ```tut:book
 catName.run(Cat("Garfield", "lasagne"))
 ```
 
-So far so simple,
-but what advantage do `Readers` give us over the raw functions?
+Пока что всё просто,
+но какие преимущества даёт `Reader` перед обычными функциями?
 
-### Composing Readers
+### Композиция Reader
 
-The power of `Readers` comes from their `map` and `flatMap` methods,
-which represent different kinds of function composition.
-We typically create a set of `Readers`
-that accept the same type of configuration,
-combine them with `map` and `flatMap`,
-and then call `run` to inject the config at the end.
+Мощь `Reader` - в методах `map` и `flatMap`,
+которые предоставляют другие виды композиции функций.
+Обычно создается набор экземпляров `Reader`,
+принимающие одинаковый тип конфигурации,
+далее они композируются с помощью `map` и `flatMap`,
+и, наконец, вызывается `run` для внедрения конфигурации.
 
-The `map` method simply extends the computation in the `Reader`
-by passing its result through a function:
+Метод `map` просто расширяет вычисление в `Reader`,
+передавая результат через функцию:
 
 ```tut:book:silent
 val greetKitty: Reader[Cat, String] =
@@ -61,10 +61,10 @@ val greetKitty: Reader[Cat, String] =
 greetKitty.run(Cat("Heathcliff", "junk food"))
 ```
 
-The `flatMap` method is more interesting.
-It allows us to combine readers that depend on the same input type.
-To illustrate this, let's extend our greeting example
-to also feed the cat:
+Метод `flatMap` интереснее.
+Он позволяет комбинировать читателей, которые зависят от одного типа ввода.
+Чтобы это проиллюстрировать, расширим наш пример (с приветствием)
+кормлением:
 
 ```tut:book:silent
 val feedKitty: Reader[Cat, String] =
@@ -82,14 +82,14 @@ greetAndFeed(Cat("Garfield", "lasagne"))
 greetAndFeed(Cat("Heathcliff", "junk food"))
 ```
 
-### Exercise: Hacking on Readers
+### Упражнение: (?Hacking?) on Readers
 
-The classic use of `Readers` is to build programs
-that accept a configuration as a parameter.
-Let's ground this with a complete example
-of a simple login system.
-Our configuration will consist of two databases:
-a list of valid users and a list of their passwords:
+Классическое использование `Reader` - программы,
+принимающие конфигурацию в качестве параметра.
+Давайте закрепим это исчерпывающим примером
+простой системой авторизации.
+Наша конфигурация будет состоять из двух баз данных (???):
+списком пользователей и списком их паролей:
 
 ```tut:book:silent
 case class Db(
@@ -98,23 +98,23 @@ case class Db(
 )
 ```
 
-Start by creating a type alias `DbReader` for
-a `Reader` that consumes a `Db` as input.
-This will make the rest of our code shorter.
+Начнем с создания псевдонима типа (?типовый псевдоним?) `DbReader` для
+`Reader`, принимающего `Db` в качестве типового параметра.
+Это сократит дальнейший код.
 
 <div class="solution">
-Our type alias fixes the `Db` type
-but leaves the result type flexible:
+Наш псевдоним типа (?типовый псевдоним?) фиксирует тип `Db`,
+но оставляет тип результата в качестве типового параметра:
 
 ```tut:book:silent
 type DbReader[A] = Reader[Db, A]
 ```
 </div>
 
-Now create methods that generate `DbReaders` to
-look up the username for an `Int` user ID, and
-look up the password for a `String` username.
-The type signatures should be as follows:
+Теперь напишем методы для создания экземпляров `DbReader`,
+которые будут искать (?имя пользователя?) username по `Int` userId, и
+проверять пароль по (?имени пользователя?) `String` username.
+Получим следующие сигнатуры типов:
 
 ```tut:book:silent
 def findUsername(userId: Int): DbReader[Option[String]] =
@@ -127,9 +127,9 @@ def checkPassword(
 ```
 
 <div class="solution">
-Remember: the idea is to leave injecting the configuration until last.
-This means setting up functions that accept the config as a parameter
-and check it against the concrete user info we have been given:
+Запомните: главная идея в том, чтобы оставить внедрение конфигурации на последний шаг.
+Это значит, что функции должны принимать конфигурацию в качестве параметра,
+и использовать её на конкретной полученной информации о пользователе:
 
 ```tut:book:silent
 def findUsername(userId: Int): DbReader[Option[String]] =
@@ -143,9 +143,9 @@ def checkPassword(
 
 </div>
 
-Finally create a `checkLogin` method
-to check the password for a given user ID.
-The type signature should be as follows:
+Наконец, создадим метод `checkLogin`
+для проверки пароля некоторого userId.
+Получим следующую сигнатуру типов:
 
 ```tut:book:silent
 def checkLogin(
@@ -155,10 +155,10 @@ def checkLogin(
 ```
 
 <div class="solution">
-As you might expect,
-here we use `flatMap` to chain `findUsername` and `checkPassword`.
-We use `pure` to lift a `Boolean` to a `DbReader[Boolean]`
-when the username is not found:
+Как вы могли ожидать,
+здесь мы используем `flatMap` для композиции `findUsername` и `checkPassword`.
+Мы используем `pure` для поднятия (lift) `Boolean` до `DbReader[Boolean]` для случая,
+когда (?имя пользователя?) username не было найдено:
 
 ```tut:book:silent
 import cats.syntax.applicative._ // for pure
@@ -177,7 +177,7 @@ def checkLogin(
 ```
 </div>
 
-You should be able to use `checkLogin` as follows:
+Вы можете использовать `checkLogin` следующим образом:
 
 ```tut:book:silent
 val users = Map(
@@ -200,43 +200,43 @@ checkLogin(1, "zerocool").run(db)
 checkLogin(4, "davinci").run(db)
 ```
 
-### When to Use Readers?
+### Когда использовать Reader?
 
-`Readers` provide a tool for doing dependency injection.
-We write steps of our program as instances of `Reader`,
-chain them together with `map` and `flatMap`,
-and build a function that accepts the dependency as input.
+`Reader` предоставляют инструмент для внедрения зависимостей.
+Мы описали шаги в программе как экземпляры `Reader`,
+упорядочили их с помощью `map` и `flatMap`,
+и построили функцию, принимающую зависимость в качестве аргумента.
 
-There are many ways of implementing dependency injection in Scala,
-from simple techniques like methods with multiple parameter lists,
-through implicit parameters and type classes,
-to complex techniques like the cake pattern and DI frameworks.
+Есть множество способов реализации внедрения зависимостей в Скала:
+от простых техник вроде методов с набором списков параметров,
+техник с использованием подразумеваемых параметров и типовых классов,
+до таких сложных техник, как cake pattern и фреймворков внедрения зависимостей (DI frameworks).
 
-`Readers` are most useful in situations where:
+`Reader` наиболее полезны в следующих случаях:
 
-- we are constructing a batch program
-  that can easily be represented by a function;
+- нужно построить программу для исполнения в пакетном режиме (batch program),
+  которая легко может быть представлена функцией;
 
-- we need to defer injection of a known parameter
-  or set of parameters;
+- нужно отложить (defer) внедрение (injection) известного параметра
+  или набора параметров;
 
-- we want to be able to test
-  parts of the program in isolation.
+- нужна возможность тестирования
+  частей программы в режиме изоляции (?песочнице?).
 
-By representing the steps of our program as `Readers`
-we can test them as easily as pure functions,
-plus we gain access to the `map` and `flatMap` combinators.
+Реализуя шаги программы в виде экземпляров `Reader`,
+мы можем протестировать их так же легко, как чистые функции,
+и бонусом получаем доступ к комбинаторам `map` и `flatMap`.
 
-For more advanced problems where we have lots of dependencies,
-or where a program isn't easily represented as a pure function,
-other dependency injection techniques tend to be more appropriate.
+Для более сложных задач, где мы имеем дело с кучей зависимостей,
+или где программу нелегко представить в виде чистой функции,
+другие способы внедрения зависимостей, скорее всего, подойдут лучше.
 
 <div class="callout callout-warning">
-  *Kleisli Arrows*
+  *Стрелки Kleisli*
 
-  You may have noticed from console output
-  that `Reader` is implemented in terms of another type called `Kleisli`.
-  *Kleisli arrows* provide a more general form of `Reader`
-  that generalise over the type constructor of the result type.
-  We will encounter Kleislis again in Chapter [@sec:monad-transformers].
+  Возможно, вы заметили в выводе консоли (console output),
+  что `Reader` реализован в терминах другого типа по имени `Kleisli`.
+  *стрелки Kleisli* предоставляют более общую форму `Reader`,
+  которая обобщает (???) типовый конструктор для типа результата(???).
+  Мы столкнемся с `Kleisli` сновa в главе [@sec:monad-transformers].
 </div>
