@@ -157,8 +157,8 @@ def checkLogin(
 <div class="solution">
 Как вы могли ожидать,
 здесь мы используем `flatMap` для композиции `findUsername` и `checkPassword`.
-Мы используем `pure` для поднятия (lift) `Boolean` до `DbReader[Boolean]` для случая,
-когда (?имя пользователя?) username не было найдено:
+Мы используем `pure` для поднятия (lift) `Boolean` до `DbReader[Boolean]` в случае,
+когда имя пользователя не было найдено:
 
 ```tut:book:silent
 import cats.syntax.applicative._ // for pure
