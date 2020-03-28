@@ -256,7 +256,7 @@ type LoginResult = Either[LoginError, User]
 Получается фиксированное множество ожидаемых типов ошибок
 и "перехватывай-всё-остальное" поведение для остальных неучтенных ошибок.
 Также мы получаем полную проверку
-в pattern matching:
+в сопоставлении с образцом:
 
 ```tut:book:silent
 // Choose error-handling behaviour based on type:
