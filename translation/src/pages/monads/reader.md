@@ -82,7 +82,7 @@ greetAndFeed(Cat("Garfield", "lasagne"))
 greetAndFeed(Cat("Heathcliff", "junk food"))
 ```
 
-### Упражнение: (?Hacking?) on Readers
+### Упражнение: Хакинг читателей
 
 Классическое использование `Reader` - программы,
 принимающие конфигурацию в качестве параметра.
