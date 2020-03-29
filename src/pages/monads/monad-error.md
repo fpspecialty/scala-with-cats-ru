@@ -1,58 +1,58 @@
-## Aside: Error Handling and MonadError
+## Отступление: Обработка ошибок и MonadError
 
-Cats provides an additional type class called `MonadError`
-that abstracts over `Either`-like data types
-that are used for error handling.
-`MonadError` provides extra operations
-for raising and handling errors.
+Cats предоставляет дополнительный тайпкласс `MonadError`,
+который абстрагирует `Either`-подобные типы данных,
+использующиеся для обработки ошибок.
+`MonadError` предоставляет дополнительные операции
+для создания и обработки ошибок.
 
 <div class="callout callout-info">
-*This Section is Optional!*
+*Эта глава необязательна!*
 
-You won't need to use `MonadError`
-unless you need to abstract over error handling monads.
-For example, you can use `MonadError`
-to abstract over `Future` and `Try`,
-or over `Either` and `EitherT`
-(which we will meet in Chapter [@sec:monad-transformers]).
+Вам нужно использовать `MonadError`
+только если вы хотите абстрагироваться от монад, обрабатывающих ошибки.
+Например, мы можете использовать `MonadError`
+для абстракции над `Future` и `Try`,
+или над `Either` и `EitherT`
+(с которым мы познакомимся в разделе [@sec:monad-transformers]).
 
-If you don't need this kind of abstraction right now,
-feel free to skip onwards to Section [@sec:monads:eval].
+Если вы не нуждаетесь в подобной абстрации прямо сейчас,
+можете переходить к главе [@sec:monads:eval].
 </div>
 
-### The MonadError Type Class
+### Тайпкласс «MonadError»
 
-Here is a simplified version
-of the definition of `MonadError`:
+Ниже представлена упрощённая версия
+определения `MonadError`:
 
 ```scala
 package cats
 
 trait MonadError[F[_], E] extends Monad[F] {
-  // Lift an error into the `F` context:
+  // «Поднятие» ошибки в `F` контекст:
   def raiseError[A](e: E): F[A]
 
-  // Handle an error, potentially recovering from it:
+  // Обработка ошибки с возможным восстановлением:
   def handleError[A](fa: F[A])(f: E => A): F[A]
 
-  // Test an instance of `F`,
-  // failing if the predicate is not satisfied:
+  // Проверка экземпляра `F`,
+  // которая не пройдёт, если предикат не будет удовлетворён:
   def ensure[A](fa: F[A])(e: E)(f: A => Boolean): F[A]
 }
 ```
 
-`MonadError` is defined in terms of two type parameters:
+`MonadError` определен с помощью двух типовых параметров:
 
-- `F` is the type of the monad;
-- `E` is the type of error contained within `F`.
+- тип монады `F`;
+- тип ошибки `E`, содержащейся внутри `F`.
 
-To demonstrate how these parameters fit together,
-here's an example where we
-instantiate the type class for `Either`:
+Ниже представлен пример
+создания экземпляра тайпкласса для `Either`,
+демонстрирующий совместную работу этих параметров:
 
 ```tut:book:silent
 import cats.MonadError
-import cats.instances.either._ // for MonadError
+import cats.instances.either._ // для MonadError
 
 type ErrorOr[A] = Either[String, A]
 
@@ -62,30 +62,30 @@ val monadError = MonadError[ErrorOr, String]
 <div class="callout callout-warning">
 *ApplicativeError*
 
-In reality, `MonadError` extends another type class
-called `ApplicativeError`.
-However, we won't encounter `Applicatives`
-until Chapter [@sec:applicatives].
-The semantics are the same for each type class
-so we can ignore this detail for now.
+На самом деле, `MonadError` расширяет другой тайпкласс 
+под названием `ApplicativeError`.
+Однако, мы познакомимся с `Applicative`
+только в разделе [@sec:applicatives].
+Семантика будет одинакова для каждого тайпкласса,
+поэтому пока можно игнорировать такие подробности.
 </div>
 
-### Raising and Handling Errors
+### Создание и обработка ошибок
 
-The two most important methods of `MonadError`
-are `raiseError` and `handleError`.
-`raiseError` is like the `pure` method for `Monad`
-except that it creates an instance representing a failure:
+`raiseError` и `handleError` 
+являются двумя наиболее важными методами `MonadError`.
+`raiseError` подобен методу `pure` тайпкласса `Monad`,
+за исключением того, что он создаёт экземпляр, представляющий собой ошибку:
 
 ```tut:book
 val success = monadError.pure(42)
 val failure = monadError.raiseError("Badness")
 ```
 
-`handleError` is the complement of `raiseError`.
-It allows us to consume an error and (possibly)
-turn it into a success,
-similar to the `recover` method of `Future`:
+`handleError` дополняет метод `raiseError`.
+Он позволяет обработать ошибку и (возможно)
+преобразовать её в успешное состояние,
+подобно методу `recover` для `Future`:
 
 ```tut:book
 monadError.handleError(failure) {
@@ -97,27 +97,27 @@ monadError.handleError(failure) {
 }
 ```
 
-There is also a third useful method called `ensure`
-that implements `filter`-like behaviour.
-We test the value of a successful monad with a predicate
-and specify an error to raise if the predicate returns `false`:
+Полезный третий метод `ensure` 
+реализует `filter`-подобное поведение.
+Он проверяет успешное значение монады на соответствие предикату
+и создаёт ошибку, если предикат вернул `false`:
 
 ```tut:book:silent
-import cats.syntax.either._ // for asRight
+import cats.syntax.either._ // для asRight
 ```
 
 ```tut:book
 monadError.ensure(success)("Number too low!")(_ > 1000)
 ```
 
-Cats provides syntax for `raiseError` and `handleError`
-via [`cats.syntax.applicativeError`][cats.syntax.applicativeError]
-and `ensure` via [`cats.syntax.monadError`][cats.syntax.monadError]:
+Cats предоставляет методы `raiseError` и `handleError`
+с помощью пакета [`cats.syntax.applicativeError`][cats.syntax.applicativeError]
+и метод `ensure` с помощью пакета [`cats.syntax.monadError`][cats.syntax.monadError]:
 
 ```tut:book:silent
-import cats.syntax.applicative._      // for pure
-import cats.syntax.applicativeError._ // for raiseError etc
-import cats.syntax.monadError._       // for ensure
+import cats.syntax.applicative._      // для pure
+import cats.syntax.applicativeError._ // для raiseError etc
+import cats.syntax.monadError._       // для ensure
 ```
 
 ```tut:book
@@ -126,23 +126,23 @@ val failure = "Badness".raiseError[ErrorOr, Int]
 success.ensure("Number to low!")(_ > 1000)
 ```
 
-There are other useful variants of these methods.
-See the source of [`cats.MonadError`][cats.MonadError]
-and [`cats.ApplicativeError`][cats.ApplicativeError]
-for more information.
+Также существуют другие полезные варианты этих методов.
+В исходном коде [`cats.MonadError`][cats.MonadError]
+и [`cats.ApplicativeError`][cats.ApplicativeError]
+вы найдёте более подробную информацию.
 
-### Instances of MonadError
+### Экземпляры MonadError
 
-Cats provides instances of `MonadError`
-for numerous data types including
-`Either`, `Future`, and `Try`.
-The instance for `Either` is customisable to any error type,
-whereas the instances for `Future` and `Try`
-always represent errors as `Throwables`:
+Cats предоставляет экземпляры `MonadError`
+для различных типов данных, включая
+`Either`, `Future`, и `Try`.
+Экземпляры для `Either` являются настриваемыми под любой тип ошибки,
+в то время как экземпляры для `Future` и `Try`
+всегда представляют ошибки как `Throwable`:
 
 ```tut:book:silent
 import scala.util.Try
-import cats.instances.try_._ // for MonadError
+import cats.instances.try_._ // для MonadError
 
 val exn: Throwable =
   new RuntimeException("It's all gone wrong")
@@ -152,4 +152,4 @@ val exn: Throwable =
 exn.raiseError[Try, Int]
 ```
 
-### Exercise: Abstracting
+### Упражнение: Абстрагирование
