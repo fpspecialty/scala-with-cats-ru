@@ -1,4 +1,4 @@
-## The Eval Monad {#sec:monads:eval}
+## Монада «Eval» {#sec:monads:eval}
 
 [`cats.Eval`][cats.Eval] — это монада, которая позволяет
 абстрагироваться над разными *моделями вычисления*.
