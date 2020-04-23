@@ -33,10 +33,9 @@ List(1, 2, 3).map(n => n + 1)
 но при этом контекст `Some` или `None` остаётся неизменным.
 Тот же принцип применяется к `Either`
 с его контекстами `Left` и `Right`.
-Это общее понятие трансформации,
-наряду с общим паттерном сигнатуры типов,
-показанных на рисунке [@fig:functors:list-option-either-type-chart],
-связывает поведение `map` с разными типами данных.
+Схожесть в том, какой смысл вкладывается в понятие трансформации,
+а также сходство сигнатур типов (рис. [@fig:functors:list-option-either-type-chart])
+объединяет поведение `map` для разных типов данных.
 
 ![Диаграмма: отображение List, Option, и Either](src/pages/functors/list-option-either-map.pdf+svg){#fig:functors:list-option-either-type-chart}
 
