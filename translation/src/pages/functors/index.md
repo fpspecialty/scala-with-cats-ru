@@ -199,7 +199,7 @@ val result2 = Await.result(future2, 1.second)
 
 ![Диаграмма: отображение Function1](src/pages/functors/function-map.pdf+svg){#fig:functors:function-type-chart}
 
-Другими словами, `map` над `Function1` является композицией функций:
+Другими словами, отображение `Function1` является композицией функций:
 
 ```tut:book:silent
 import cats.instances.function._ // для Functor
