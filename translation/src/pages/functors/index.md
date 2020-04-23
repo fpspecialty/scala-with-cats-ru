@@ -126,7 +126,7 @@ Await.result(future, 1.second)
 import scala.util.Random
 
 val future1 = {
-  // Инициализация Random с заданным зерном:
+  // Инициализация Random заданным начальным значением:
   val r = new Random(0L)
 
   // nextInt имеет побочный эффект перехода к 
