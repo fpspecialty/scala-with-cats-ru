@@ -1,7 +1,7 @@
-## The Identity Monad {#sec:monads:identity}
+## Монада Identity {#sec:monads:identity}
 
-In the previous section we demonstrated Cats' `flatMap` and `map` syntax
-by writing a method that abstracted over different monads:
+В предыдущем разделе мы видели синтаксис `flatMap` и `map` Cats
+c абстрагированием типа монады:
 
 ```tut:book:silent
 import scala.language.higherKinds
@@ -16,17 +16,17 @@ def sumSquare[F[_]: Monad](a: F[Int], b: F[Int]): F[Int] =
   } yield x*x + y*y
 ```
 
-This method works well on `Options` and `Lists`
-but we can't call it passing in plain values:
+Этот метод работает для `Option` и `List`,
+но не принимает простые значения в качестве аргументов:
 
 ```tut:book:fail
 sumSquare(3, 4)
 ```
 
-It would be incredibly useful if we could use `sumSquare`
-with parameters that were either in a monad or not in a monad at all.
-This would allow us to abstract over monadic and non-monadic code.
-Fortunately, Cats provides the `Id` type to bridge the gap:
+Было бы очень удобно, если бы мы cмогли использовать `sumSquare`
+с любыми аргументами.
+Тогда мы бы смогли писать абстрактный код, работающий как с монадами, так и без них.
+К счастью, Cats предоставляет тип `Id`:
 
 ```tut:book:silent
 import cats.Id
@@ -36,12 +36,12 @@ import cats.Id
 sumSquare(3 : Id[Int], 4 : Id[Int])
 ```
 
-`Id` allows us to call our monadic method using plain values.
-However, the exact semantics are difficult to understand.
-We cast the parameters to `sumSquare` as `Id[Int]`
-and received an `Id[Int]` back as a result!
+С помощью `Id` мы можем передавать в монадический метод простые значения.
+Однако, сразу понять смысл таких выражений бывает сложно.
+Мы преобразуем параметры `sumSquare` в `Id[Int]`
+и получаем `Id[Int]` в качестве результата!
 
-What's going on? Here is the definition of `Id` to explain:
+Чтобы лучше понять происходящее, рассмотрим определение `Id`:
 
 ```scala
 package cats
@@ -49,9 +49,10 @@ package cats
 type Id[A] = A
 ```
 
-`Id` is actually a type alias
-that turns an atomic type into a single-parameter type constructor.
-We can cast any value of any type to a corresponding `Id`:
+На самом деле, `Id` — это однопараметрический конструктор типа,
+который преобразует любой конкретный тип `A` в другой тип (его псевдоним), 
+в котором `A` является типовым параметром.
+Мы можем преобразовать любое значение любого типа в соответствующий `Id`:
 
 ```tut:book
 "Dave" : Id[String]
@@ -59,10 +60,10 @@ We can cast any value of any type to a corresponding `Id`:
 List(1, 2, 3) : Id[List[Int]]
 ```
 
-Cats provides instances of various type classes for `Id`,
-including `Functor` and `Monad`.
-These let us call `map`, `flatMap`, and `pure`
-passing in plain values:
+Cats предоставляет экземпляры различных тайпклассов для `Id`,
+включая `Functor` и `Monad`.
+Благодаря им можно вызывать `map`, `flatMap`, и `pure`
+с простыми значениями:
 
 ```tut:book
 val a = Monad[Id].pure(3)
@@ -81,21 +82,20 @@ for {
 } yield x + y
 ```
 
-The ability to abstract over monadic and non-monadic code
-is extremely powerful.
-For example,
-we can run code asynchronously in production using `Future`
-and synchronously in test using `Id`.
-We'll see this in our first case study
-in Chapter [@sec:case-studies:testing].
+Возможность абстрагивания монадического и не монадического кода крайне мощна.
+Например,
+мы можем запускать код в промышленной эксплуатации асинхронно, используя`Future`,
+а при тестировании — синхронно через `Id`.
+Рассмотрим это на конкретном примере
+в главе [@sec:case-studies:testing].
 
-### Exercise: Monadic Secret Identities
+### Упражнение: Монадические Секретные Id-ентичности
 
-Implement `pure`, `map`, and `flatMap` for `Id`!
-What interesting discoveries do you uncover about the implementation?
+Реализуйте `pure`, `map`, и `flatMap` для `Id`!
+Какие интересные открытия вы обнаружите в реализации?
 
 <div class="solution">
-Let's start by defining the method signatures:
+Начнем с определения сигнатур методов:
 
 ```tut:book:silent
 import cats.Id
@@ -110,10 +110,10 @@ def flatMap[A, B](initial: Id[A])(func: A => Id[B]): Id[B] =
   ???
 ```
 
-Now let's look at each method in turn.
-The `pure` operation creates an `Id[A]` from an `A`.
-But `A` and `Id[A]` are the same type!
-All we have to do is return the initial value:
+Теперь рассмотрим каждый метод по очереди.
+Операция `pure` создает `Id[A]` из `A`.
+Но ведь `A` и `Id[A]` — это один и тот же тип!
+Всё, что нужно сделать — просто вернуть исходное значение:
 
 ```tut:book:silent
 def pure[A](value: A): Id[A] =
@@ -124,10 +124,10 @@ def pure[A](value: A): Id[A] =
 pure(123)
 ```
 
-The `map` method takes a parameter of type `Id[A]`,
-applies a function of type `A => B`, and returns an `Id[B]`.
-But `Id[A]` is simply `A` and `Id[B]` is simply `B`!
-All we have to do is call the function---no packing or unpacking required:
+Метод `map` принимает значение типа `Id[A]`
+и функцию типа `A => B`, и возвращает `Id[B]`.
+Но `Id[A]` — это просто `A`, а `Id[B]` — это `B`!
+Достаточно вызвать функцию — никакой упаковки и распаковки не потребуется:
 
 ```tut:book:silent
 def map[A, B](initial: Id[A])(func: A => B): Id[B] =
@@ -138,9 +138,9 @@ def map[A, B](initial: Id[A])(func: A => B): Id[B] =
 map(123)(_ * 2)
 ```
 
-The final punch line is that,
-once we strip away the `Id` type constructors,
-`flatMap` and `map` are actually identical:
+Последняя строка кода показывает,
+что, как только мы убрали конструкторы `Id`,
+`flatMap` и `map` оказались идентичными:
 
 ```tut:book
 def flatMap[A, B](initial: Id[A])(func: A => Id[B]): Id[B] =
@@ -151,22 +151,22 @@ def flatMap[A, B](initial: Id[A])(func: A => Id[B]): Id[B] =
 flatMap(123)(_ * 2)
 ```
 
-This ties in with our understanding of functors and monads
-as sequencing type classes.
-Each type class allows us to sequence operations
-ignoring some kind of complication.
-In the case of `Id` there is no complication,
-making `map` and `flatMap` the same thing.
+Это укладывается в наше понимание функторов и монад,
+как тайпклассов, позволяющих организовывать последовательные вычисления.
+Каждый тайпкласс позволяет объединить операции в цепочку,
+игнорируя некоторое усложнение.
+Тип `Id` не подразумевает какого-либо контекста для вычислений,
+поэтому `map` и `flatMap` — одно и то же.
 
-Notice that we haven't had to write type annotations
-in the method bodies above.
-The compiler is able to interpret values of type `A` as `Id[A]` and vice versa
-by the context in which they are used.
+Обратите внимание: нам не пришлось писать аннотации типов
+в теле методов.
+Компилятор может интерпретировать значения типа `A` как `Id[A]`, и наоборот,
+по контексту использования.
 
-The only restriction we've seen to this is that Scala cannot unify
-types and type constructors when searching for implicits.
-Hence our need to re-type `Int` as `Id[Int]`
-in the call to `sumSquare` at the opening of this section:
+Единственное ограничение заключается в том, что Scala не может унифицировать
+типы и конструкторы типов при поиске значений неявных параметров.
+Поэтому и пришлось написать `Id[Int]` вместо `Int`
+в вызове `sumSquare` в начале раздела:
 
 ```tut:book:silent
 sumSquare(3 : Id[Int], 4 : Id[Int])
