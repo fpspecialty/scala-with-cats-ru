@@ -108,7 +108,7 @@ x.value // второй вызов
 ```
 
 `Eval.always` описывает ленивое вычисление,
-схожим образом с `def`:
+схожее с `def`:
 
 ```tut:book
 val y = Eval.always {
