@@ -297,8 +297,8 @@ def foldRightEval[A, B](as: List[A], acc: Eval[B])
   }
 ```
 
-Можно переопределить `foldRight` просто в терминах `foldRightEval`
-и получить метод, который будет стекобезопасен:
+А теперь можно переопределить `foldRight` через `foldRightEval`
+и получить стекобезопасный метод:
 
 ```tut:book:silent
 def foldRight[A, B](as: List[A], acc: B)(fn: (A, B) => B): B =
