@@ -11,7 +11,7 @@ Cats предоставляет дополнительный тайпкласс 
 
 Вам нужно использовать `MonadError`
 только если вы хотите абстрагироваться от монад, обрабатывающих ошибки.
-Например, мы можете использовать `MonadError`
+Например, вы можете использовать `MonadError`
 для абстракции над `Future` и `Try`,
 или над `Either` и `EitherT`
 (с которым мы познакомимся в разделе [@sec:monad-transformers]).
@@ -29,7 +29,7 @@ Cats предоставляет дополнительный тайпкласс 
 package cats
 
 trait MonadError[F[_], E] extends Monad[F] {
-  // «Поднятие» ошибки в `F` контекст:
+  // «Оборачивание» ошибки в контекст `F`:
   def raiseError[A](e: E): F[A]
 
   // Обработка ошибки с возможным восстановлением:
@@ -100,7 +100,7 @@ monadError.handleError(failure) {
 Полезный третий метод `ensure` 
 реализует `filter`-подобное поведение.
 Он проверяет успешное значение монады на соответствие предикату
-и создаёт ошибку, если предикат вернул `false`:
+и возвращает ошибку, если предикат вернул `false`:
 
 ```tut:book:silent
 import cats.syntax.either._ // для asRight
@@ -111,8 +111,8 @@ monadError.ensure(success)("Number too low!")(_ > 1000)
 ```
 
 Cats предоставляет методы `raiseError` и `handleError`
-с помощью пакета [`cats.syntax.applicativeError`][cats.syntax.applicativeError]
-и метод `ensure` с помощью пакета [`cats.syntax.monadError`][cats.syntax.monadError]:
+из пакета [`cats.syntax.applicativeError`][cats.syntax.applicativeError]
+и метод `ensure` из пакета [`cats.syntax.monadError`][cats.syntax.monadError]:
 
 ```tut:book:silent
 import cats.syntax.applicative._      // для pure
