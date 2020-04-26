@@ -1,50 +1,47 @@
-# Functors
+# Функторы
 
-In this chapter we will investigate **functors**,
-an abstraction that allows us to
-represent sequences of operations within a context
-such as a `List`, an `Option`,
-or any one of a thousand other possibilities.
-Functors on their own aren't so useful,
-but special cases of functors such as
-**monads** and **applicative functors**
-are some of the most commonly used abstractions in Cats.
+В этой главе мы изучим **функторы** —
+абстракции, которые позволяют
+выразить последовательное выполнение операций в некотором контексте,
+таком как `List`, `Option` или каком-либо другом (существует множество вариантов).
+Сами по себе функторы не особенно полезны,
+но некоторые их разновидности, такие как
+**монады** и **аппликативные функторы**,
+являются одними из основных абстракций в Cats.
 
-## Examples of Functors {#sec:functors:examples}
+## Примеры функторов {#sec:functors:examples}
 
-Informally, a functor is anything with a `map` method.
-You probably know lots of types that have this:
-`Option`, `List`, and `Either`, to name a few.
+Говоря неформально, функтор — это нечто такое, что имеет метод `map`.
+Вам наверняка известно множество типов, у которых есть такой метод:
+`Option`, `List` и `Either` входят в их число.
 
-We typically first encounter `map` when iterating over `Lists`.
-However, to understand functors
-we need to think of the method in another way.
-Rather than traversing the list, we should think of it as
-transforming all of the values inside in one go.
-We specify the function to apply,
-and `map` ensures it is applied to every item.
-The values change but the structure of the list remains the same:
+Обычно люди знакомятся с `map`, когда требуется перебрать значения некоторого списка.
+Но чтобы понять функторы по-настоящему,
+нужно думать о методе `map` несколько иначе.
+Его следует рассматривать не как последовательный перебор, 
+а как преобразование сразу всех элементов.
+От нас требуется предоставить некоторую функцию,
+а `map` гарантирует, что она будет применена к каждому элементу.
+Значения поменяются, но структура списка останется прежней:
 
 ```tut:book
 List(1, 2, 3).map(n => n + 1)
 ```
 
-Similarly, when we `map` over an `Option`,
-we transform the contents but leave
-the `Some` or `None` context unchanged.
-The same principle applies to `Either`
-with its `Left` and `Right` contexts.
-This general notion of transformation,
-along with the common pattern of type signatures
-shown in Figure [@fig:functors:list-option-either-type-chart],
-is what connects the behaviour of `map`
-across different data types.
+Точно так же, когда мы используем `map` с `Option`,
+мы трансформируем содержимое,
+но при этом контекст `Some` или `None` остаётся неизменным.
+Тот же принцип применяется к `Either`
+с его контекстами `Left` и `Right`.
+Схожесть в том, какой смысл вкладывается в понятие трансформации,
+а также сходство сигнатур типов (рис. [@fig:functors:list-option-either-type-chart])
+объединяют поведение `map` для разных типов данных.
 
-![Type chart: mapping over List, Option, and Either](src/pages/functors/list-option-either-map.pdf+svg){#fig:functors:list-option-either-type-chart}
+![Диаграмма: отображение List, Option, и Either](src/pages/functors/list-option-either-map.pdf+svg){#fig:functors:list-option-either-type-chart}
 
-Because `map` leaves the structure of the context unchanged,
-we can call it repeatedly to sequence multiple computations
-on the contents of an initial data structure:
+Поскольку `map` оставляет структуру контекста неизменной, 
+мы можем использовать цепочку его вызовов, чтобы упорядочить несколько вычислений 
+для содержимого исходной структуры данных:
 
 ```tut:book
 List(1, 2, 3).
@@ -53,49 +50,49 @@ List(1, 2, 3).
   map(n => n + "!")
 ```
 
-We should think of `map` not as an iteration pattern,
-but as a way of sequencing computations
-on values ignoring some complication
-dictated by the relevant data type:
+Мы должны думать о `map` не как о приёме итерирования, 
+а как о способе последовательно выполнять вычисления над значениями,
+не беспокоясь о сложностях, 
+обусловленных соответствующим типом данных:
 
-- `Option`---the value may or may not be present;
-- `Either`---there may be a value or an error;
-- `List`---there may be zero or more values.
+- `Option` — значение может присутствовать или отсутствовать;
+- `Either` — тут может быть значение или ошибка;
+- `List` — тут может быть ноль или более значений.
 
-## More Examples of Functors {#sec:functors:more-examples}
+## Другие примеры функторов {#sec:functors:more-examples}
 
-The `map` methods of `List`, `Option`, and `Either`
-apply functions eagerly.
-However, the idea of sequencing computations
-is more general than this.
-Let's investigate the behaviour of some other functors
-that apply the pattern in different ways.
+Метод `map` у `List`, `Option` и `Either`
+использует энергичное вычисление. 
+Однако, идея упорядоченых вычислений 
+является более общей.
+Рассмотрим поведение некоторых других функторов, 
+которые реализуют этот паттерн различными способами.
 
 **Futures**
 
-`Future` is a functor that
-sequences asynchronous computations by queueing them
-and applying them as their predecessors complete.
-The type signature of its `map` method,
-shown in Figure [@fig:functors:future-type-chart],
-has the same shape as the signatures above.
-However, the behaviour is very different.
+`Future` - это функтор, который 
+упорядочивает асинхронные вычисления, ставя их в очередь 
+и применяя их после того как выполнятся предыдущие вычисления.
+Сигнатура его метода `map`,
+показанная на рисунке [@fig:functors:future-type-chart], 
+выглядит подобно другим сигнатурам `map`. 
+Тем не менее, поведение сильно отличается.
 
-![Type chart: mapping over a Future](src/pages/functors/future-map.pdf+svg){#fig:functors:future-type-chart}
+![Диаграмма: отображение Future](src/pages/functors/future-map.pdf+svg){#fig:functors:future-type-chart}
 
-When we work with a `Future` we have no guarantees
-about its internal state.
-The wrapped computation may be
-ongoing, complete, or rejected.
-If the `Future` is complete,
-our mapping function can be called immediately.
-If not, some underlying thread pool queues
-the function call and comes back to it later.
-We don't know *when* our functions will be called,
-but we do know *what order* they will be called in.
-In this way, `Future` provides
-the same sequencing behaviour
-seen in `List`, `Option`, and `Either`:
+Когда мы работаем с `Future`, у нас нет никаких гарантий
+относительно его внутреннего состояния. 
+Вычисления могут
+находиться в завершённом или незавершённом состояниях, а также могут быть прерваны.
+Если `Future` находится в завершённом состоянии,
+функция `map` может быть вызвана немедленно.
+Если нет, то пул потоков ставит в очередь 
+вызов функции и возвращается к нему позже. 
+Мы не знаем, *когда* будут вызваны наши функции, 
+но мы знаем, *в каком порядке* они будут вызваны. 
+Таким образом, `Future` обеспечивает
+такое же «последовательное» поведение, 
+что и `List`, `Option` и `Either`:
 
 ```tut:book:silent
 import scala.concurrent.{Future, Await}
@@ -114,26 +111,26 @@ Await.result(future, 1.second)
 ```
 
 <div class="callout callout-info">
-*Futures and Referential Transparency*
+*Futures и ссылочная прозрачность*
 
-Note that Scala's `Futures` aren't a great example
-of pure functional programming
-because they aren't *referentially transparent*.
-`Future` always computes and caches a result
-and there's no way for us to tweak this behaviour.
-This means we can get unpredictable results
-when we use `Future` to wrap side-effecting computations.
-For example:
+Стоит отметить, что `Future` в Scala — не лучший пример
+чисто функционального программирования, 
+потому что он не обладает *ссылочной прозрачностью*.
+`Future` всегда вычисляет и кеширует результат, 
+и у нас нет возможности изменить это поведение.
+Это означает, что мы можем получить непредсказуемые результаты,
+если будем использовать `Future`, чтобы обернуть вычисления, приводящие к побочным эффектам.
+Например:
 
 ```tut:book:silent
 import scala.util.Random
 
 val future1 = {
-  // Initialize Random with a fixed seed:
+  // Инициализируем Random заданным начальным значением:
   val r = new Random(0L)
 
-  // nextInt has the side-effect of moving to
-  // the next random number in the sequence:
+  // nextInt имеет побочный эффект перехода к 
+  // следующему случайному числу в последовательности:
   val x = Future(r.nextInt)
 
   for {
@@ -157,56 +154,57 @@ val result1 = Await.result(future1, 1.second)
 val result2 = Await.result(future2, 1.second)
 ```
 
-Ideally we would like `result1` and `result2`
-to contain the same value.
-However, the computation for `future1` calls `nextInt` once
-and the computation for `future2` calls it twice.
-Because `nextInt` returns a different result every time
-we get a different result in each case.
+В идеале мы бы хотели, чтобы `result1` и `result2` 
+содержали одно и то же значение.
+Тем не менее, вычисление для `future1` вызывает `nextInt` один раз,
+а вычисление для `future2` вызывает его дважды.
+Мы рассчитываем, что `nextInt` с каждым вызовом будет возвращать нам новое значение,
+но в случае `future1` этого не произойдёт, и результаты `future1` и `future2` будут различаться.
 
-This kind of discrepancy makes it hard to reason about
-programs involving `Futures` and side-effects.
-There also are other problematic aspects of `Future's` behaviour,
-such as the way it always starts computations immediately
-rather than allowing the user to dictate when the program should run.
-For more information
-see [this excellent Reddit answer][link-so-future]
-by Rob Norris.
+Такое несоответствие затрудняет рассуждение о
+программах, использующих `Futures` и побочные эффекты.
+У поведения  `Future` есть и другие проблемные аспекты —
+например, немедленный запуск вычисления,
+не позволяющий пользователю самому выбрать,
+в какой именно момент программа должна начать выполняться.
+Для получения дополнительной информации 
+посмотрите [этот превосходный ответ на Reddit][link-so-future] 
+Роба Норриса.
 </div>
 
-If `Future` isn't referentially transparent,
-perhaps we should look at another similar data-type that is.
-You should recognise this one...
+Если `Future` не обладает ссылочной прозрачностью,
+возможно, нам следует взглянуть на другой подобный тип данных.
+Вы наверняка с ним знакомы...
 
-**Functions (?!)**
+**Функции (?!)**
 
-It turns out that single argument functions are also functors.
-To see this we have to tweak the types a little.
-A function `A => B` has two type parameters:
-the parameter type `A` and the result type `B`.
-To coerce them to the correct shape we can
-fix the parameter type and let the result type vary:
+Оказывается, что функции одного аргумента также являются функторами.
+Чтобы увидеть это, нам нужно немного по-другому взглянуть на типы.
+Функция `A => B` имеет два типовых параметра: 
+тип аргумента `A` и тип возвращаемого значения `B`.
+Чтобы привести их к удобной нам форме, мы можем
+зафиксировать тип аргумента, а тип возвращаемого значения оставить переменным:
 
- - start with `X => A`;
- - supply a function `A => B`;
- - get back `X => B`.
+ - имеем `X => A`;
+ - подставляем функцию `A => B`;
+ - получаем `X => B`.
 
-If we alias `X => A` as `MyFunc[A]`,
-we see the same pattern of types
-we saw with the other examples in this chapter.
-We also see this in Figure [@fig:functors:function-type-chart]:
+Если переименовать тип `X => A` в `MyFunc[A]`,
+то будет заметно сходство типов
+с другими примерами из этой главы.
+Мы также видим это на рисунке [@fig:functors:function-type-chart]:
 
- - start with `MyFunc[A]`;
- - supply a function `A => B`;
- - get back `MyFunc[B]`.
+ - имеем `MyFunc[A]`;
+ - подставляем функцию `A => B`;
+ - получаем `MyFunc[B]`.
 
-![Type chart: mapping over a Function1](src/pages/functors/function-map.pdf+svg){#fig:functors:function-type-chart}
+![Диаграмма: отображение Function1](src/pages/functors/function-map.pdf+svg){#fig:functors:function-type-chart}
 
-In other words, "mapping" over a `Function1` is function composition:
+Другими словами, отображение `Function1` является композицией функций:
 
 ```tut:book:silent
-import cats.instances.function._ // for Functor
-import cats.syntax.functor._     // for map
+import cats.instances.function._ // для Functor
+import cats.syntax.functor._     // для map
 ```
 
 ```tut:book:silent
@@ -218,22 +216,22 @@ val func2: Double => Double =
 ```
 
 ```tut:book
-(func1 map func2)(1)     // composition using map
-(func1 andThen func2)(1) // composition using andThen
-func2(func1(1))          // composition written out by hand
+(func1 map func2)(1)     // композиция через map
+(func1 andThen func2)(1) // композиция через andThen
+func2(func1(1))          // композиция, выполненная вручную
 ```
 
-How does this relate to our general pattern
-of sequencing operations?
-If we think about it,
-function composition *is* sequencing.
-We start with a function that performs a single operation
-and every time we use `map` we append another operation to the chain.
-Calling `map` doesn't actually *run* any of the operations,
-but if we can pass an argument to the final function
-all of the operations are run in sequence.
-We can think of this as lazily queueing up operations
-similar to `Future`:
+Как это связано с поведением функторов
+(последовательным выполнением операций)?
+Если задуматься, 
+композиция функций и *является* этим последовательным выполнением.
+У нас есть функция, которая выполняет одну операцию,
+и с каждым применением `map` мы добавляем в последовательность ещё одну операцию.
+Вызов `map` на самом деле *не запускает* ни одну из операций,
+но если итоговой функции передать её аргумент,
+то все операции выполняются последовательно.
+Мы можем думать об этом как о лениво стоящих в очереди операциях,
+подобно `Future`:
 
 ```tut:book:silent
 val func =
@@ -248,16 +246,16 @@ func(123)
 ```
 
 <div class="callout callout-warning">
-*Partial Unification*
+*Частичная унификация*
 
-For the above examples to work
-we need to add the following compiler option to `build.sbt`:
+Чтобы вышеприведенные примеры работали,
+нужно добавить следующую опцию компилятора в `build.sbt`:
 
 ```scala
 scalacOptions += "-Ypartial-unification"
 ```
 
-otherwise we'll get a compiler error:
+в противном случае мы получим ошибку компиляции:
 
 ```scala
 func1.map(func2)
@@ -266,27 +264,27 @@ func1.map(func2)
                 ^
 ```
 
-We'll look at why this happens in detail
-in Section [@sec:functors:partial-unification].
+Рассмотрим подробнее, почему это происходит
+в разделе [@sec:functors:partial-unification].
 </div>
 
-## Definition of a Functor
+## Определение функтора
 
-Every example we've looked at so far is a functor:
-a class that encapsulates sequencing computations.
-Formally, a functor is a type `F[A]`
-with an operation `map` with type `(A => B) => F[B]`.
-The general type chart is shown in
-Figure [@fig:functors:functor-type-chart].
+Каждый рассмотренный нами пример является функтором —
+тайпклассом, который выражает последовательные вычисления.
+Формально, функтор — это тип `F[A]`
+с операцией `map` типа `(A => B) => F[B]`.
+Общая диаграмма типов показана на 
+рисунке [@fig:functors:functor-type-chart].
 
-![Type chart: generalised functor map](src/pages/functors/generic-map.pdf+svg){#fig:functors:functor-type-chart}
+![Диаграмма: обобщенное отображение функторов](src/pages/functors/generic-map.pdf+svg){#fig:functors:functor-type-chart}
 
-Cats encodes `Functor` as a type class,
+Cats определяет `Functor` как тайпкласс,
 [`cats.Functor`][cats.Functor],
-so the method looks a little different.
-It accepts the initial `F[A]` as a parameter
-alongside the transformation function.
-Here's a simplified version of the definition:
+поэтому метод выглядит немного иначе.
+Он принимает начальный `F[A]` в качестве параметра
+вместе с функцией преобразования.
+Вот упрощенное определение:
 
 ```scala
 package cats
@@ -300,114 +298,115 @@ trait Functor[F[_]] {
 }
 ```
 
-If you haven't seen syntax like `F[_]` before,
-it's time to take a brief detour to discuss
-*type constructors* and *higher kinded types*.
-We'll explain that `scala.language` import as well.
+Если ранее вам не встречался синтаксис вроде `F[_]`, 
+то пришло время для небольшого отступления, чтобы обсудить 
+*конструкторы типов* и *типы высшего порядка*.
+Также мы объясним, что именно импортирует `scala.language`.
 
 <div class="callout callout-warning">
-*Functor Laws*
+*Законы функторов*
 
-Functors guarantee the same semantics
-whether we sequence many small operations one by one,
-or combine them into a larger function before `mapping`.
-To ensure this is the case the following laws must hold:
+Функторы гарантируют одинаковую семантику
+как для нескольких последовательных применений `map` с некоторыми операциями,
+так и для применения `map` с композицией этих операций
+(соединённых в одну большую функцию до применения `map`).
+А чтобы мы могли быть уверены в этом, экземпляром должны соблюдаться следующие законы:
 
-*Identity*: calling `map` with the identity function
-is the same as doing nothing:
+*Тождественность*: применить `map` с тождественным отображением (функцией identity) —
+это то же самое, что не делать ничего:
 
 ```scala
 fa.map(a => a) == fa
 ```
 
-*Composition*: `mapping` with two functions `f` and `g` is
-the same as `mapping` with `f` and then `mapping` with `g`:
+*Композиция*: вызов `map` от двух функций `f` и `g` 
+аналогичен вызову `map` от `f` и затем `map` от `g`:
 
 ```scala
 fa.map(g(f(_))) == fa.map(f).map(g)
 ```
 </div>
 
-## Aside: Higher Kinds and Type Constructors
+## Отступление: Понятия «род» и «конструктор типов»
 
-Kinds are like types for types.
-They describe the number of "holes" in a type.
-We distinguish between regular types that have no holes
-and "type constructors" that have
-holes we can fill to produce types.
+Род (kind) — это как тип для типов.
+Род описывает количество недостающих типовых параметров (или, как часто говорят, количество «дырок»).
+Мы различаем обычные типы, у которых нет «дырок», 
+и конструкторы типов, у которых «дырки» есть, и чтобы создать некоторый тип, нужно их заполнить.
 
-For example, `List` is a type constructor with one hole.
-We fill that hole by specifying a parameter to produce
-a regular type like `List[Int]` or `List[A]`.
-The trick is not to confuse type constructors with generic types.
-`List` is a type constructor, `List[A]` is a type:
+Например, `List` — это конструктор типа с одной «дыркой».
+Мы можем заполнить эту «дырку», передав ему типовый параметр,
+и таким образом создадим конкретный тип, такой как `List[Int]` или `List[A]`.
+Важно не путать конструкторы типов с обобщёнными типами.
+`List` — это конструктор типа, `List[A] `— это тип:
 
 ```scala
-List    // type constructor, takes one parameter
-List[A] // type, produced using a type parameter
+List    // конструктор типов, принимающий один параметр
+List[A] // тип, полученный с использованием параметра
 ```
 
-There's a close analogy here with functions and values.
-Functions are "value constructors"---they
-produce values when we supply parameters:
+Здесь есть близкая аналогия с функциями и значениями.
+Функции являются «конструкторами значений» — они
+производят значения, когда мы передаём им параметры:
 
 ```scala
-math.abs    // function, takes one parameter
-math.abs(x) // value, produced using a value parameter
+math.abs    // функция, принимающая один параметр
+math.abs(x) // значение, полученное с использованием параметра
 ```
 
-In Scala we declare type constructors using underscores.
-Once we've declared them, however,
-we refer to them as simple identifiers:
+В Scala мы объявляем конструкторы типов, используя знак подчеркивания.
+Однако, после того, как мы их объявили, 
+мы обращаемся к ним так же, как и ко всем остальным идентификаторам:
 
 ```scala
-// Declare F using underscores:
+// Объявление F через подчеркивание:
 def myMethod[F[_]] = {
 
-  // Reference F without underscores:
+  // Ссылка на F без подчеркивания:
   val functor = Functor.apply[F]
 
   // ...
 }
 ```
 
-This is analogous to specifying a function's parameters
-in its definition and omitting them when referring to it:
+Это аналогично указанию параметров функции 
+в ее определении и пропуску их при обращении к ней:
 
 ```scala
-// Declare f specifying parameters:
+// Объявление f c параметрами:
 val f = (x: Int) => x * 2
 
-// Reference f without parameters:
+// Ссылка на f без параметров:
 val f2 = f andThen f
 ```
 
-Armed with this knowledge of type constructors,
-we can see that the Cats definition of `Functor`
-allows us to create instances for any single-parameter type constructor,
-such as `List`, `Option`, `Future`, or a type alias such as `MyFunc`.
+Вооружившись знанием о конструкторах типов, можно увидеть, 
+что в Cats определение `Functor` позволяет создавать экземпляры
+для любого однопараметрического конструктора типа
+(т.е. такого, который может принять один типовый параметр).
+К ним относятся `List`, `Option`, `Future`, а также псевдонимы вроде `MyFunc`.
 
 <div class="callout callout-info">
-*Language Feature Imports*
+*Импорт расширенной функциональности языка*
 
-Higher kinded types are considered an advanced language feature in Scala.
-Whenever we declare a type constructor with `A[_]` syntax,
-we need to "enable" the higher kinded type language feature
-to suppress warnings from the compiler.
-We can either do this with a "language import" as above:
+Типы высшего порядка считаются расширенной функциональностью языка в Scala.
+Всякий раз, когда мы объявляем конструктор типа с синтаксисом `A[_]`,
+нам нужно «включать» поддержку типов высшего порядка
+для подавления предупреждений от компилятора. 
+Мы можем сделать это с помощью «языкового импорта», как указано выше:
 
 ```scala
 import scala.language.higherKinds
 ```
 
-or by adding the following to `scalacOptions` in `build.sbt`:
+или добавив следующее в `scalacOptions` в `build.sbt`:
 
 ```scala
 scalacOptions += "-language:higherKinds"
 ```
 
-We'll use the language import in this book
-to ensure we are as explicit as possible.
-In practice, however, we find the `scalacOptions`
-flag to be simpler and less verbose.
+В этой книге мы будем использовать импорт,
+чтобы поведение примеров было определено как можно более явно.
+На практике, однако, мы находим флаг `scalacOptions`
+более простым и кратким.
 </div>
