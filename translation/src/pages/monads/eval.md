@@ -1,28 +1,28 @@
-## The Eval Monad {#sec:monads:eval}
+## Монада «Eval» {#sec:monads:eval}
 
-[`cats.Eval`][cats.Eval] is a monad that allows us to
-abstract over different *models of evaluation*.
-We typically hear of two such models: *eager* and *lazy*.
-`Eval` throws in a further distinction of
-whether or not a result is *memoized*.
+[`cats.Eval`][cats.Eval] — это монада, которая позволяет
+абстрагироваться над разными *моделями вычисления*.
+Обычно выделяют две модели вычислений: *энергичная* и *ленивая*.
+`Eval` описывает различия между тем,
+*мемоизирован* результат или нет.
 
-### Eager, Lazy, Memoized, Oh My!
+### Энергичные, Ленивые, Мемоизированные, подумать только!
 
-What do these terms mean?
+Что означают эти термины?
 
-*Eager* computations happen immediately
-whereas *lazy* computations happen on access.
-*Memoized* computations are run once on first access,
-after which the results are cached.
+*Энергичные* вычисления происходят немедленно,
+тогда как *ленивые* происходят непосредственно при вызове вычисления.
+*Мемоизированные* вычисления запускаются один раз при первом вызове,
+после которого результаты кэшируются.
 
-For example, Scala `vals` are eager and memoized.
-We can see this using a computation with a visible side-effect.
-In the following example,
-the code to compute the value of `x`
-happens at the definition site
-rather than on access (eager).
-Accessing `x` recalls the stored value
-without re-running the code (memoized).
+Например, `val` в Scala энергичные и мемоизированные.
+Это можно наблюдать при выполнении вычислений с видимым побочным эффектом.
+В следующем примере
+код для вычисления значения `x`
+вызывается в месте определения,
+а не при обращении к нему (энергичный).
+Доступ к `x` вызывает сохраненное значение
+без повторного вычисления (мемоизированный).
 
 ```tut:book
 val x = {
@@ -30,14 +30,14 @@ val x = {
   math.random
 }
 
-x // first access
-x // second access
+x // первый вызов
+x // второй вызов
 ```
 
-By contrast, `defs` are lazy and not memoized.
-The code to compute `y` below
-is not run until we access it (lazy),
-and is re-run on every access (not memoized):
+В отличие от `val`, `def` ленивые и не мемоизированные.
+Код для вычисления `y`, представленный ниже,
+не будет выполнен до тех пор, пока в другом месте не потребуется значение `y` (ленивый),
+и будет повторно выполнен при каждом вызове (не мемоизированный):
 
 ```tut:book
 def y = {
@@ -45,17 +45,16 @@ def y = {
   math.random
 }
 
-y // first access
-y // second access
+y // первый вызов
+y // второй вызов
 ```
 
-Last but not least,
-`lazy vals` are lazy and memoized.
-The code to compute `z` below
-is not run until we access it
-for the first time (lazy).
-The result is then cached
-and re-used on subsequent accesses (memoized):
+И последнее, но не менее важное,
+`lazy val` ленивые и мемоизированные.
+Код для вычисления `z`, представленный ниже,
+не будет выполнен до первого обращения к его значению (ленивый).
+После первого обращения результат кэшируется
+и переиспользуется при последующих вызовах (мемоизированный):
 
 ```tut:book
 lazy val z = {
@@ -63,16 +62,16 @@ lazy val z = {
   math.random
 }
 
-z // first access
-z // second access
+z // первый вызов
+z // второй вызов
 ```
 
-### Eval's Models of Evaluation
+### Модели вычисления Eval
 
-`Eval` has three subtypes: `Now`, `Later`, and `Always`.
-We construct these with three constructor methods,
-which create instances of the three classes
-and return them typed as `Eval`:
+У `Eval` есть три подтипа: `Now`, `Later`, и `Always`.
+Их инициализируют с помощью трёх методов,
+которые создают экземпляры этих трёх классов
+и возвращают их как тип `Eval`:
 
 ```tut:book:silent
 import cats.Eval
@@ -84,8 +83,8 @@ val later = Eval.later(math.random + 2000)
 val always = Eval.always(math.random + 3000)
 ```
 
-We can extract the result of an `Eval`
-using its `value` method:
+Мы можем извлечь результат `Eval`,
+используя метод `value`:
 
 ```tut:book
 now.value
@@ -93,10 +92,10 @@ later.value
 always.value
 ```
 
-Each type of `Eval` calculates its result
-using one of the evaluation models defined above.
-`Eval.now` captures a value *right now*.
-Its semantics are similar to a `val`---eager and memoized:
+Каждый тип `Eval` вычисляет результат,
+используя одну из определенных выше моделей вычисления.
+`Eval.now` вычисляет значение *прямо сейчас*.
+Его семантика похожа на `val` — энергичный и мемоизированный:
 
 ```tut:book
 val x = Eval.now {
@@ -104,12 +103,12 @@ val x = Eval.now {
   math.random
 }
 
-x.value // first access
-x.value // second access
+x.value // первый вызов
+x.value // второй вызов
 ```
 
-`Eval.always` captures a lazy computation,
-similar to a `def`:
+`Eval.always` описывает ленивое вычисление,
+схожее с `def`:
 
 ```tut:book
 val y = Eval.always {
@@ -117,12 +116,12 @@ val y = Eval.always {
   math.random
 }
 
-y.value // first access
-y.value // second access
+y.value // первый вызов
+y.value // второй вызов
 ```
 
-Finally, `Eval.later` captures a lazy, memoized computation,
-similar to a `lazy val`:
+Наконец, `Eval.later` описывает ленивое, мемоизированное вычисление,
+схожее с `lazy val`:
 
 ```tut:book
 val z = Eval.later {
@@ -130,28 +129,28 @@ val z = Eval.later {
   math.random
 }
 
-z.value // first access
-z.value // second access
+z.value // первый вызов
+z.value // второй вызов
 ```
 
-The three behaviours are summarized below:
+Эти три поведения вычислений подытожены ниже:
 
 -----------------------------------------------------------------------
-Scala              Cats                      Properties
+Scala              Cats                      Свойства
 ------------------ ------------------------- --------------------------
-`val`              `Now`                     eager, memoized
+`val`              `Now`                     энергичное, мемоизированное
 
-`lazy val`         `Later`                   lazy, memoized
+`lazy val`         `Later`                   ленивое, мемоизированное
 
-`def`              `Always`                  lazy, not memoized
+`def`              `Always`                  ленивое, не мемоизированное
 ------------------ ------------------------- --------------------------
 
-### Eval as a Monad
+### Eval как монада
 
-Like all monads, `Eval's` `map` and `flatMap` methods add computations to a chain.
-In this case, however, the chain is stored explicitly as a list of functions.
-The functions aren't run until we call
-`Eval's` `value` method to request a result:
+Как и у всех монад, методы `map` и `flatMap` у `Eval` добавляют вычисления в последовательность.
+Однако, в данном случае, последовательность хранится явно, как перечень функций.
+Функции не будут вызываны, пока у `Eval` не будет вызван
+метод `value`, который запрашивает результат вычислений:
 
 ```tut:book
 val greeting = Eval.
@@ -161,10 +160,10 @@ val greeting = Eval.
 greeting.value
 ```
 
-Note that, while the semantics of
-the originating `Eval` instances are maintained,
-mapping functions are always
-called lazily on demand (`def` semantics):
+Обратите внимание, что в то время как семантика
+исходных экземпляров `Eval` сохраняется,
+отображение функций всегда
+выполняется лениво и по требованию (семантика `def`):
 
 ```tut:book
 val ans = for {
@@ -175,14 +174,14 @@ val ans = for {
   a + b
 }
 
-ans.value // first access
-ans.value // second access
+ans.value // первый вызов
+ans.value // второй вызов
 ```
 
-`Eval` has a `memoize` method that
-allows us to memoize a chain of computations.
-The result of the chain up to the call to `memoize` is cached,
-whereas calculations after the call retain their original semantics:
+У `Eval` есть метод `memoize`, который
+позволяет мемоизировать последовательность вычислений.
+Результат последовательности до вызова `memoize` кэшируется,
+в то время как вычисления после вызова сохраняют свою первоначальную семантику:
 
 ```tut:book
 val saying = Eval.
@@ -191,26 +190,26 @@ val saying = Eval.
   memoize.
   map { str => println("Step 3"); s"$str the mat" }
 
-saying.value // first access
-saying.value // second access
+saying.value // первый вызов
+saying.value // второй вызов
 ```
 
-### Trampolining and *Eval.defer*
+### Трамполайн и *Eval.defer*
 
-One useful property of `Eval`
-is that its `map` and `flatMap` methods are *trampolined*.
-This means we can nest calls to `map` and `flatMap` arbitrarily
-without consuming stack frames.
-We call this property *"stack safety"*.
+Одно из полезных свойств `Eval` состоит в том,
+что его методы `map` и `flatMap` используют *трамполайн* (trampolining).
+Это означает, что можно произвольным образом вкладывать вызовы `map` и `flatMap` друг в друга, 
+не приводя к чрезмерному использованию стековых кадров (stack frames).
+Мы называем это свойство *стековой безопасностью (stack safety)*.
 
-For example, consider this function for calculating factorials:
+Например, рассмотрим эту функцию вычисления факториала:
 
 ```tut:book:silent
 def factorial(n: BigInt): BigInt =
   if(n == 1) n else n * factorial(n - 1)
 ```
 
-It is relatively easy to make this method stack overflow:
+Её использование легко может привести к переполнению стека:
 
 ```scala
 factorial(50000)
@@ -218,7 +217,7 @@ factorial(50000)
 //   ...
 ```
 
-We can rewrite the method using `Eval` to make it stack safe:
+Мы можем переписать её с помощью `Eval` так, чтобы стек не переполнялся:
 
 ```tut:book:silent
 def factorial(n: BigInt): Eval[BigInt] =
@@ -235,13 +234,14 @@ factorial(50000).value
 //   ...
 ```
 
-Oops! That didn't work---our stack still blew up!
-This is because we're still making all the recursive calls to `factorial`
-before we start working with `Eval's` `map` method.
-We can work around this using `Eval.defer`,
-which takes an existing instance of `Eval` and defers its evaluation.
-The `defer` method is trampolined like `map` and `flatMap`,
-so we can use it as a quick way to make an existing operation stack safe:
+Упс! Это не сработало — переполнение стека по-прежнему происходит, 
+потому что рекурсивные вызовы всё ещё обращаются к `factorial`
+до использования метода `map` у `Eval`.
+Мы можем избежать этого, используя метод `Eval.defer`,
+который берёт существующий экземпляр `Eval` и откладывает его вычисление.
+Метод `defer` использует *трамполайн*, как `map` и `flatMap`,
+поэтому мы можем использовать его как быстрый способ сделать существующую операцию
+безопасной в отношении стека:
 
 ```tut:book:silent
 def factorial(n: BigInt): Eval[BigInt] =
@@ -256,17 +256,17 @@ def factorial(n: BigInt): Eval[BigInt] =
 factorial(50000).value
 ```
 
-`Eval` is a useful tool to enforce stack safety
-when working on very large computations and data structures.
-However, we must bear in mind that trampolining is not free.
-It avoids consuming stack by creating a chain of function objects on the heap.
-There are still limits on how deeply we can nest computations,
-but they are bounded by the size of the heap rather than the stack.
+`Eval` является полезным инструментом для обеспечения стековой безопасности
+при работе с очень большими вычислениями и структурами данных.
+Тем не менее, мы должны помнить, что за трамполайн тоже приходится платить.
+Он позволяет избежать потребления стека, создавая последовательность функциональных объектов в куче (heap).
+Предел вложенности таких вычислений всё ещё существует,
+но определяется он размером кучи, а не стека.
 
-### Exercise: Safer Folding using Eval
+### Упражнение: Безопасная свёртка, используя Eval
 
-The naive implementation of `foldRight` below is not stack safe.
-Make it so using `Eval`:
+Наивная реализация `foldRight`, представленная ниже, не является стекобезопасной.
+Перепишите её, используя `Eval`:
 
 ```tut:book:silent
 def foldRight[A, B](as: List[A], acc: B)(fn: (A, B) => B): B =
@@ -279,11 +279,11 @@ def foldRight[A, B](as: List[A], acc: B)(fn: (A, B) => B): B =
 ```
 
 <div class="solution">
-The easiest way to fix this is
-to introduce a helper method called `foldRightEval`.
-This is essentially our original method
-with every occurrence of `B` replaced with `Eval[B]`,
-and a call to `Eval.defer` to protect the recursive call:
+Самый простой способ это исправить —
+написать вспомогательный метод под названием `foldRightEval`.
+По сути, это тот же самый метод,
+но тип `B` заменён на `Eval[B]`,
+и рекурсивные вызовы производятся через `Eval.defer`:
 
 ```tut:book:silent
 import cats.Eval
@@ -298,8 +298,8 @@ def foldRightEval[A, B](as: List[A], acc: Eval[B])
   }
 ```
 
-We can redefine `foldRight` simply in terms of `foldRightEval`
-and the resulting method is stack safe:
+А теперь можно переопределить `foldRight` через `foldRightEval`
+и получить стекобезопасный метод:
 
 ```tut:book:silent
 def foldRight[A, B](as: List[A], acc: B)(fn: (A, B) => B): B =
