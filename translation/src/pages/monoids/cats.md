@@ -30,7 +30,7 @@ Cats Kernel это подпроект Cats,
 они все доступны по псевдониму модуля [`cats`][cats.package],
 поэтому нам не нужно беспокоиться о различии.
 
-Тайпклассы Cats Kernel, расммотренные в этой книге, это
+Тайпклассы Cats Kernel, рассмотренные в этой книге, это
 [`Eq`][cats.kernel.Eq],
 [`Semigroup`][cats.kernel.Semigroup],
 и [`Monoid`][cats.kernel.Monoid].
