@@ -1,42 +1,41 @@
-## Summary
+## Итог
 
-Functors represent sequencing behaviours.
-We covered three types of functor in this chapter:
+Функторы представляют последовательность действий.
+В этой главе мы рассмотрели три типа функторов:
 
-- Regular covariant `Functors`, with their `map` method,
-  represent the ability to apply functions
-  to a value in some context.
-  Successive calls to `map`
-  apply these functions in *sequence*,
-  each accepting the result of its predecessor
-  as a parameter.
+- Обычные ковариантные функторы с методом `map`,
+  предоставляющие возможность применять функции 
+  к значению в некотором контексте. 
+  Последовательные вызовы `map` 
+  выстраивают эти функции в *последовательность*: 
+  каждая функция принимает результат предыдущей 
+  в качестве параметра.
 
-- `Contravariant` functors, with their `contramap` method,
-  represent the ability to "prepend" functions
-  to a function-like context.
-  Successive calls to `contramap`
-  sequence these functions in the opposite order to `map`.
+- `Contravariant` функторы с методом `contramap`, 
+  предоставляющие возможность «добавлять» функции 
+  в функционально-подобный контекст. 
+  Последовательные вызовы `contramap` 
+  упорядочивают эти функции в порядке, обратном` map`.
 
-- `Invariant` functors, with their `imap` method,
-  represent bidirectional transformations.
+- `Invariant` функторы с методом `imap`,
+   представляющие двунаправленные преобразования.
 
-Regular `Functors` are by far the most common of these type classes,
-but even then it is rare to use them on their own.
-Functors form a foundational building block of
-several more interesting abstractions that we use all the time.
-In the following chapters we will look at two of these abstractions:
-*monads* and *applicative functors*.
+Обычные функторы на сегодняшний день наиболее распространены из них, 
+но даже они редко используются сами по себе. 
+Функторы образуют фундаментальный строительный блок из 
+нескольких более интересных абстракций, которые мы используем постоянно. 
+В следующих главах мы рассмотрим две из этих абстракций: 
+*монады* и *аппликативные функторы*.
 
-Functors for collections are extremely important, as they transform each element independently of the rest.
-This allows us to parallelise or distribute
-transformations on large collections,
-a technique leveraged heavily in
-"map-reduce" frameworks like [Hadoop][link-hadoop].
-We will investigate this approach in more detail in the
-[Map-reduce](#map-reduce) case study later in the book.
+Функторы чрезвычайно важны при работе с коллекциями, поскольку они преобразуют каждый элемент независимо от остальных. 
+Это позволяет выполнять преобразования больших коллекций
+параллельно или распределено. 
+Эта техника часто используется в средах 
+«map-reduce», таких как [Hadoop][link-hadoop]. 
+Мы рассмотрим этот подход более подробно
+в упражнении [Map-Reduce](#map-reduce) позже в этой книге.
 
-The `Contravariant` and `Invariant` type classes
-are less widely applicable but are still useful
-for building data types that represent transformations.
-We will revisit them to discuss the [`Semigroupal`](#semigroupal)
-type class later in Chapter [@sec:applicatives].
+Тайпклассы `Contravariant` и `Invariant` 
+менее распространены, но все же полезны 
+для построения типов данных, которые представляют преобразования. 
+Мы вернемся к ним, чтобы обсудить тайпкласс [`Semigroupal`](#semigroupal) позже в главе [@sec:applicatives].
