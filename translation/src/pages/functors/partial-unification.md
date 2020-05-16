@@ -1,14 +1,14 @@
-## Aside: Partial Unification {#sec:functors:partial-unification}
+## Отступление: Частичное объединение {#sec:functors:partial-unification}
 
-In Section [@sec:functors:more-examples]
-we saw a curious compiler error.
-The following code compiled perfectly
-if we had the `-Ypartial-unification` compiler flag enabled:
+В разделе [@sec:functors:more-examples]
+мы увидели любопытную ошибку компилятора.
+Компиляции приведенного ниже кода пройдёт успешно
+при условии, что был включен флаг компилятора `-Ypartial-unification`:
 
 ```tut:book:silent
 import cats.Functor
-import cats.instances.function._ // for Functor
-import cats.syntax.functor._     // for map
+import cats.instances.function._ // для Functor
+import cats.syntax.functor._     // для map
 
 val func1 = (x: Int)    => x.toDouble
 val func2 = (y: Double) => y * 2
@@ -18,7 +18,7 @@ val func2 = (y: Double) => y * 2
 val func3 = func1.map(func2)
 ```
 
-but failed if the flag was missing:
+но завершится с ошибкой, если флаг был пропущен:
 
 ```scala
 val func3 = func1.map(func2)
@@ -27,17 +27,17 @@ val func3 = func1.map(func2)
                             ^
 ```
 
-Obviously "partial unification" is
-some kind of optional compiler behaviour,
-without which our code will not compile.
-We should take a moment to describe this behaviour
-and discuss some gotchas and workarounds.
+Очевидно, что «частичное объединение» — 
+это некое необязательное поведение компилятора, 
+без которого наш код не будет компилироваться.
+Мы должны уделить время, чтобы описать это поведение,
+обсудить некоторые подводные камни и обходные пути.
 
-### Unifying Type Constructors
+### Объединяющие конструкторы типов
 
-In order to compile an expression like `func1.map(func2)` above,
-the compiler has to search for a `Functor` for `Function1`.
-However, `Functor` accepts a type constructor with one parameter:
+Чтобы скомпилировать выражение, такое как `func1.map (func2)` выше, 
+компилятор должен искать `Functor` для` Function1`.
+Однако, `Functor` принимает конструктор типа с одним параметром:
 
 ```scala
 trait Functor[F[_]] {
@@ -45,8 +45,8 @@ trait Functor[F[_]] {
 }
 ```
 
-and `Function1` has two type parameters
-(the function argument and the result type):
+и `Function1` имеет два параметра типа
+(аргумент функции и тип результата):
 
 ```scala
 trait Function1[-A, +B] {
@@ -54,38 +54,38 @@ trait Function1[-A, +B] {
 }
 ```
 
-The compiler has to fix one of the two parameters
-of `Function1` to create a type constructor
-of the correct kind to pass to `Functor`.
-It has two options to choose from:
+Компилятор должен исправить один из двух параметров
+`Function1` для создания конструктора типа
+правильного рода, чтобы передать в `Functor`.
+У него есть два варианта на выбор:
 
 ```tut:book:silent
 type F[A] = Int => A
 type F[A] = A => Double
 ```
 
-*We* know that the former of these is the correct choice.
-However, earlier versions of the Scala compiler
-were not able to make this inference.
-This infamous limitation,
-known as [SI-2712][link-si2712],
-prevented the compiler from "unifying" type constructors
-of different arities.
-This compiler limitation is now fixed,
-although we have to enable the fix
-via a compiler flag in `build.sbt`:
+*Мы* знаем, что первый вариант — правильный выбор.
+Однако более ранние версии компилятора Scala 
+не могли сделать такой вывод.
+Это печально известное ограничение, 
+известное как [SI-2712] [link-si2712], 
+не позволяло компилятору «объединять» конструкторы типов 
+разных арностей.
+Это ограничение компилятора теперь исправлено, 
+но мы должны включить его 
+с помощью флага компилятора в `build.sbt`:
 
 ```scala
 scalacOptions += "-Ypartial-unification"
 ```
 
-### Left-to-Right Elimination
+### Исключение неизвестных параметров слева направо
 
-The partial unification in the Scala compiler
-works by fixing type parameters from left to right.
-In the above example, the compiler fixes
-the `Int` in `Int => Double`
-and looks for a `Functor` for functions of type `Int => ?`:
+Частичное объединение в компиляторе Scala 
+работает через исправление параметров типа слева направо.
+В приведенном выше примере компилятор исправляет 
+`Int` на `Int => Double` 
+и ищет `Functor` для функций типа `Int =>?`:
 
 ```tut:book:silent
 type F[A] = Int => A
@@ -93,13 +93,13 @@ type F[A] = Int => A
 val functor = Functor[F]
 ```
 
-This left-to-right elimination works for
-a wide variety of common scenarios,
-including `Functors` for
-types such as `Function1` and `Either`:
+Такое исключение неизвестных параметров слева направо работает для 
+широкого спектра распространенных сценариев, 
+включая поиск `Functor` для 
+таких типов, как` Function1` и `Either`:
 
 ```tut:book:silent
-import cats.instances.either._ // for Functor
+import cats.instances.either._ // для Functor
 ```
 
 ```tut:book
@@ -108,22 +108,22 @@ val either: Either[String, Int] = Right(123)
 either.map(_ + 1)
 ```
 
-However, there are situations where
-left-to-right elimination is not the correct choice.
-One example is the `Or` type in [Scalactic][link-scalactic],
-which is a conventionally left-biased equivalent of `Either`:
+Однако существуют ситуации, 
+где исключение слева направо не является правильным выбором.
+Одним из таких примеров является тип `Or` в [Scalactic][link-scalactic], 
+который является условно левосторонним эквивалентом `Either`:
 
 ```scala
 type PossibleResult = ActualResult Or Error
 ```
 
-Another example is the `Contravariant` functor for `Function1`.
+Другим примером является функтор `Contravariant` для `Function1`.
 
-While the covariant `Functor` for `Function1` implements
-`andThen`-style left-to-right function composition,
-the `Contravariant` functor implements `compose`-style
-right-to-left composition.
-In other words, the following expressions are all equivalent:
+В то время, как ковариантный `Functor` для` Function1` реализует 
+композицию функций в стиле `andThen` слева направо, 
+функтор `Contravariant` реализует композицию справа налево 
+в стиле `compose`.
+Другими словами, все следующие выражения эквивалентны:
 
 ```tut:book:silent
 val func3a: Int => Double =
@@ -139,31 +139,31 @@ val func3c: Int => Double =
   func2.contramap(func1)
 ```
 
-If we try this for real, however,
-our code won't compile:
+Однако, если мы попробуем это реализовать, 
+наш код не скомпилируется:
 
 ```tut:book:silent
-import cats.syntax.contravariant._ // for contramap
+import cats.syntax.contravariant._ // для contramap
 ```
 
 ```tut:book:fail
 val func3c = func2.contramap(func1)
 ```
 
-The problem here is that the `Contravariant` for `Function1`
-fixes the return type and leaves the parameter type varying,
-requiring the compiler to eliminate type parameters
-from right to left, as shown below and in Figure [@fig:functors:function-contramap-type-chart]:
+Проблема здесь в том, что `Contravariant` для `Function1` 
+исправляет тип возвращаемого значения и оставляет тип параметра изменяющимся, 
+требуя, чтобы компилятор исключал параметры типа 
+справа налево, как показано ниже и на рисунке [@fig:functors:function-contramap-type-chart]:
 
 ```scala
 type F[A] = A => Double
 ```
 
-![Type chart: contramapping over a Function1](src/pages/functors/function-contramap.pdf+svg){#fig:functors:function-contramap-type-chart}
+![Диаграмма: сопоставление над Function1](src/pages/functors/function-contramap.pdf+svg){#fig:functors:function-contramap-type-chart}
 
-The compiler fails simply because of its left-to-right bias.
-We can prove this by creating a type alias
-that flips the parameters on Function1:
+Ошибка компилятора происходит из-за его ориентации слева направо. 
+Мы можем доказать это, создав псевдоним типа, 
+который меняет местами параметры в Function1:
 
 ```tut:book:silent
 type <=[B, A] = A => B
@@ -171,9 +171,9 @@ type <=[B, A] = A => B
 type F[A] = Double <= A
 ```
 
-If we re-type `func2` as an instance of `<=`,
-we reset the required order of elimination and
-we can call `contramap` as desired:
+Если мы переопределим `func2` в качестве экземпляра` <= `, 
+мы сбросим требуемый порядок исключения и 
+можем вызвать `contramap` как хотели:
 
 ```tut:book:silent
 val func2b: Double <= Double = func2
@@ -183,23 +183,21 @@ val func2b: Double <= Double = func2
 val func3c = func2b.contramap(func1)
 ```
 
-The difference between `func2` and `func2b` is
-purely syntactic---both refer to the same value
-and the type aliases are otherwise completely compatible.
-Incredibly, however,
-this simple rephrasing is enough to
-give the compiler the hint it needs
-to solve the problem.
+Разница между `func2` и `func2b` является 
+чисто синтаксической — оба ссылаются на одно и то же значение, 
+а псевдонимы типов полностью совместимы.
+Невероятно, однако, что 
+этого простого перефразирования достаточно, чтобы 
+дать компилятору подсказку, необходимую 
+для решения проблемы.
 
-It is rare that we have to do
-this kind of right-to-left elimination.
-Most multi-parameter type constructors
-are designed to be right-biased,
-requiring the left-to-right elimination
-that is supported by the compiler
-out of the box.
-However, it is useful to know about
-`-Ypartial-unification`
-and this quirk of elimination order
-in case you ever come across
-an odd scenario like the one above.
+Нам редко приходится реализовывать
+исключение справа налево. 
+Большинство многопараметрических конструкторов типов 
+право-ориентированы, 
+что требует исключения слева направо, 
+которое поддерживается компилятором из коробки. 
+Тем не менее, полезно знать о `-Ypartial-unification`
+и этой причуде порядка исключения 
+в случае, если вы когда-нибудь столкнетесь 
+со странным сценарием, подобным приведенному выше.
