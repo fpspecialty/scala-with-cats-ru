@@ -1,17 +1,17 @@
 ## The State Monad
 
 [`cats.data.State`][cats.data.State]
-allows us to pass additional state around as part of a computation.
-We define `State` instances representing atomic state operations
-and thread them together using `map` and `flatMap`.
-In this way we can model mutable state in a purely functional way,
-without using mutation.
+позволяет передавать дополнительное состояние в рамках вычисления.
+Экземпляры `State` представляют собой атомарные операции состояния,
+которые связывают между собой с помощью `map` и `flatMap`.
+Таким образом, мутабельное состояние можно представить в функциональном стиле,
+без использования мутабельности.
 
-### Creating and Unpacking State
+### Создаём и Извлекаем Состояние
 
-Boiled down to their simplest form,
-instances of `State[S, A]` represent functions of type `S => (S, A)`.
-`S` is the type of the state and `A` is the type of the result.
+Сокращённые до их самой простой формы,
+экземпляры `State[S, A]` представляют собой функции типа `S => (S, A)`.
+`S` — это тип состояния и `A` — это тип результата.
 
 ```tut:book:silent
 import cats.data.State
@@ -23,37 +23,37 @@ val a = State[Int, String] { state =>
 }
 ```
 
-In other words, an instance of `State` is a function
-that does two things:
+Другими словами, экземпляр `State` — это функция,
+которая делает две вещи:
 
-- transforms an input state to an output state;
-- computes a result.
+- преобразует состояние входа в состояние выхода;
+- вычисляет результат.
 
-We can "run" our monad by supplying an initial state.
-`State` provides three methods---`run`, `runS`, and `runA`---that return
-different combinations of state and result.
-Each method returns an instance of `Eval`,
-which `State` uses to maintain stack safety.
-We call the `value` method as usual to extract the actual result:
+Можно "запустить" монаду, предоставив начальное состояние.
+`State` предоставляет три метода — `run`, `runS`, и `runA`, которые возвращает
+различные комбинации состояния и результата.
+Каждый метод возвращает экземпляр `Eval`,
+который `State` использует для сохранения стековой безопасности.
+Чтобы извлечь актуальное значение, можно вызвать метод `value`:
 
 ```tut:book
-// Get the state and the result:
+// Получить состояние и результат:
 val (state, result) = a.run(10).value
 
-// Get the state, ignore the result:
+// Получить состояние, игнорировать результат:
 val state = a.runS(10).value
 
-// Get the result, ignore the state:
+// Получить результат, игнорировать состояние:
 val result = a.runA(10).value
 ```
 
-### Composing and Transforming State
+### Композиция и Преобразование Состояния
 
-As we've seen with `Reader` and `Writer`,
-the power of the `State` monad comes from combining instances.
-The `map` and `flatMap` methods thread the state from one instance to another.
-Each individual instance represents an atomic state transformation,
-and their combination represents a complete sequence of changes:
+Как мы видели на примере `Reader` и `Writer`,
+сила монады `State` в возможности композиции экземпляров.
+Методы `map` и `flatMap` передают состояние от одного экземпляра к другому.
+Каждый отдельный экземпляр представляет собой атомарное преобразование состояния,
+а их композиция представляет собой последовательность всех изменений:
 
 ```tut:book
 val step1 = State[Int, String] { num =>
@@ -74,21 +74,21 @@ val both = for {
 val (state, result) = both.run(20).value
 ```
 
-As you can see, in this example the final state
-is the result of applying both transformations in sequence.
-State is threaded from step to step
-even though we don't interact with it in the for comprehension.
+Можно заметить, в данном примере конечное состояние
+является результатом последовательного применения двух преобразований.
+Состояние передаётся от шага к шагу,
+хотя мы и не взаимодействуем с ним в for-выражении.
 
-The general model for using the `State` monad
-is to represent each step of a computation as an instance
-and compose the steps using the standard monad operators.
-Cats provides several convenience constructors for creating primitive steps:
+Общая модель использования монады `State`
+заключается в представлении каждого шага вычисления как экземпляра
+и композиции шагов, используя стандартные операторы монад.
+Cats предоставлет несколько удобных конструкторов для создания простых шагов:
 
-  - `get` extracts the state as the result;
-  - `set` updates the state and returns unit as the result;
-  - `pure` ignores the state and returns a supplied result;
-  - `inspect` extracts the state via a transformation function;
-  - `modify` updates the state using an update function.
+  - `get` извлекает состояние и возвращает его в результате;
+  - `set` обновляет состояние и возвращает `unit` в результате;
+  - `pure` игнорирует состояние и возвращает предоставленный результат;
+  - `inspect` извлекает состояние с помощью функции преобразования;
+  - `modify` обновляет состояние с помощью функции обновления.
 
 ```tut:book
 val getDemo = State.get[Int]
@@ -107,9 +107,9 @@ val modifyDemo = State.modify[Int](_ + 1)
 modifyDemo.run(10).value
 ```
 
-We can assemble these building blocks using a for comprehension.
-We typically ignore the result of intermediate stages
-that only represent transformations on the state:
+Можно собрать эти преобразования, используя for-выражения.
+Обычно мы игнорируем результат промежуточных этапов,
+которые представляют только преобразования состояния:
 
 ```tut:book:silent
 import State._
@@ -127,61 +127,61 @@ val program: State[Int, (Int, Int, Int)] = for {
 val (state, result) = program.run(1).value
 ```
 
-### Exercise: Post-Order Calculator
+### Упражнение: Калькулятор с обратной польской записью
 
-The `State` monad allows us to implement
-simple interpreters for complex expressions,
-passing the values of mutable registers along with the result.
-We can see a simple example of this by implementing
-a calculator for post-order integer arithmetic expressions.
+Монада `State` позволяет нам реализовать
+простые интерпретаторы для сложных выражений,
+передавая значения мутабельных регистров вместе с результатом.
+Рассмотрим простой пример этого, реализовав
+калькулятор с помощью алгоритма «обратной польской записи» (Reverse Polish notation) для целочисленных арифметических вычислений.
 
-In case you haven't heard of post-order expressions before
-(don't worry if you haven't),
-they are a mathematical notation
-where we write the operator *after* its operands.
-So, for example, instead of writing `1 + 2` we would write:
+На случай, если вы не слышали об «обратной польской записи» до этого, 
+(не волнуйтесь, если не слышали),
+она представляет собой математическую запись,
+где оператор записывается *после* его операндов.
+Итак, например, вместо того, чтобы написать `1 + 2` мы напишем:
 
 ```scala
 1 2 +
 ```
 
-Although post-order expressions are difficult for humans to read,
-they are easy to evaluate in code.
-All we need to do is traverse the symbols from left to right,
-carrying a *stack* of operands with us as we go:
+Хотя человеку сложно читать записанные таким образом выражения,
+их легко вычислять в коде.
+Всё, что нужно сделать — это обойти все символы выражения слева направо,
+имея с собой *стек* операндов по мере обхода:
 
-- when we see a number, we push it onto the stack;
+- когда мы видим число, добавляем его в стек;
 
-- when we see an operator, we pop two operands off the stack,
-  operate on them, and push the result in their place.
+- когда мы видим оператор, извлекаем два операнда из стека,
+  применяем операцию, и записываем результат в стек.
 
-This allows us to evaluate complex expressions without using parentheses.
-For example, we can evaluate `(1 + 2) * 3)` as follows:
+Это позволяет вычислять сложные выражения без использования скобок.
+Например, можно вычислить выражение `(1 + 2) * 3)` следующим образом:
 
 ```scala
-1 2 + 3 * // see 1, push onto stack
-2 + 3 *   // see 2, push onto stack
-+ 3 *     // see +, pop 1 and 2 off of stack,
-          //        push (1 + 2) = 3 in their place
-3 3 *     // see 3, push onto stack
-3 *       // see 3, push onto stack
-*         // see *, pop 3 and 3 off of stack,
-          //        push (3 * 3) = 9 in their place
+1 2 + 3 * // видим 1, добавляем в стек
+2 + 3 *   // видим 2, добавляем в стек
++ 3 *     // видим +, извлекаем 1 и 2 из стека,
+          //          добавляем (1 + 2) = 3 на их место
+3 3 *     // видим 3, добавляем в стек
+3 *       // видим 3, добавляем в стек
+*         // видим *, извлекаем 3 и 3 из стека,
+          //          добавляем (3 * 3) = 9 на их место
 ```
 
-Let's write an interpreter for these expressions.
-We can parse each symbol into a `State` instance
-representing a transformation on the stack
-and an intermediate result.
-The `State` instances can be threaded together using `flatMap`
-to produce an interpreter for any sequence of symbols.
+Давайте напишем интерпретатор для этих выражений.
+Мы можем считывать каждый символ в экземпляр `State`,
+представляющий собой преобразование в стеке 
+и промежуточный результат.
+Экземпляры `State` могут быть скомпозированы, используя `flatMap`,
+для создания интерпретатора из любой последовательности символов.
 
-Start by writing a function `evalOne` that
-parses a single symbol into an instance of `State`.
-Use the code below as a template.
-Don't worry about error handling for now---if
-the stack is in the wrong configuration,
-it's OK to throw an exception.
+Начните с написания функции `evalOne`, которая
+считывает каждый символ в экземпляр `State`.
+Используйте код ниже как шаблон.
+Не волнуйтесь об обработке ошибок, если
+стек неправильно настроен,
+можно бросить исключение.
 
 ```tut:book:reset:silent
 import cats.data.State
@@ -191,11 +191,11 @@ type CalcState[A] = State[List[Int], A]
 def evalOne(sym: String): CalcState[Int] = ???
 ```
 
-If this seems difficult,
-think about the basic form of the `State` instances you're returning.
-Each instance represents a functional transformation
-from a stack to a pair of a stack and a result.
-You can ignore any wider context and focus on just that one step:
+Если это кажется сложным,
+подумайте о простой форме экземпляра `State`, который возвращается.
+Каждый экземпляр представляет собой функциональное преобразование значений
+из «текущего» стека в пару «нового» стека и результата.
+Можно игнорировать любой более широкий контекст вышесказанного и сосредоточиться только этом определении:
 
 ```tut:book:invisible
 def someTransformation(input: List[Int]): List[Int] = input
@@ -210,13 +210,13 @@ State[List[Int], Int] { oldStack =>
 }
 ```
 
-Feel free to write your `Stack` instances in this form
-or as sequences of the convenience constructors we saw above.
+Не стесняйтесь написать собственный экземпляр `Stack` в таком виде
+или как последовательность удобных конструкторов, как в примере выше.
 
 <div class="solution">
-The stack operation required is different for operators and operands.
-For clarity we'll implement `evalOne` in terms of two helper functions,
-one for each case:
+Требуемая операция стека отличается для операторов и операндов.
+Для ясности, реализуем `evalOne` в виде двух вспомогательных функций,
+по одному на каждый случай:
 
 ```scala
 def evalOne(sym: String): CalcState[Int] =
@@ -229,9 +229,9 @@ def evalOne(sym: String): CalcState[Int] =
   }
 ```
 
-Let's look at `operand` first.
-All we have to do is push a number onto the stack.
-We also return the operand as an intermediate result:
+Во-первых, рассмотрим `operand`.
+Все, что нам нужно сделать, это добавить число в стек.
+Мы также возвращаем операнд как промежуточный результат:
 
 ```tut:book:silent
 def operand(num: Int): CalcState[Int] =
@@ -240,10 +240,10 @@ def operand(num: Int): CalcState[Int] =
   }
 ```
 
-The `operator` function is a little more complex.
-We have to pop two operands off the stack (having the second operand at the top of the stack) and push the result in their place.
-The code can fail if the stack doesn't have enough operands on it,
-but the exercise description allows us to throw an exception in this case:
+Функция `operator` немного сложнее.
+Мы должны получить два операнда из стека (имея второй операнд наверху стека) и положить результат на их место.
+Код может завершиться неудачно, если в стеке не достаточно операндов,
+но в упражнении сказано, что в таком случаем можно бросить исключение:
 
 ```tut:book:silent
 def operator(func: (Int, Int) => Int): CalcState[Int] =
@@ -269,17 +269,17 @@ def evalOne(sym: String): CalcState[Int] =
 ```
 </div>
 
-`evalOne` allows us to evaluate single-symbol expressions as follows.
-We call `runA` supplying `Nil` as an initial stack,
-and call `value` to unpack the resulting `Eval` instance:
+`evalOne` позволяет вычислять односимвольные выражения следующим образом.
+Вызовем `runA`, предоставляя `Nil`, как начальное значение для стека,
+и вызовем `value`, чтобы получить результат экземпляра `Eval`:
 
 ```tut:book
 evalOne("42").runA(Nil).value
 ```
 
-We can represent more complex programs using `evalOne`, `map`, and `flatMap`.
-Note that most of the work is happening on the stack,
-so we ignore the results of the intermediate steps for `evalOne("1")` and `evalOne("2")`:
+Мы можем писать более сложные программы, используя `evalOne`, `map`, и `flatMap`.
+Обратите внимание, что большая часть работы происходит на стеке,
+поэтому мы игнорируем результаты промежуточных шагов для `evalOne("1")` и `evalOne("2")`:
 
 ```tut:book
 val program = for {
@@ -291,11 +291,11 @@ val program = for {
 program.runA(Nil).value
 ```
 
-Generalise this example by writing an `evalAll` method
-that computes the result of a `List[String]`.
-Use `evalOne` to process each symbol,
-and thread the resulting `State` monads together using `flatMap`.
-Your function should have the following signature:
+Обобщите этот пример, написав метод `evalAll`,
+который вычисляет результат `List[String]`.
+Используйте `evalOne` для обработки каждого символа,
+и связывания результатов монад `State`, используя `flatMap`.
+Ваша функция должна иметь следующую сигнатуру:
 
 ```tut:book:silent
 def evalAll(input: List[String]): CalcState[Int] =
@@ -303,10 +303,10 @@ def evalAll(input: List[String]): CalcState[Int] =
 ```
 
 <div class="solution">
-We implement `evalAll` by folding over the input.
-We start with a pure `CalcState` that returns `0` if the list is empty.
-We `flatMap` at each stage,
-ignoring the intermediate results as we saw in the example:
+Реализуем `evalAll`, применяя операцию «свёртки» к списку.
+Начнём с «чистого» `CalcState`, который возвращает `0`, если лист пустой.
+Применяем `flatMap` на каждом этапе,
+игнорируя промежуточные результаты, как было описано ранее:
 
 ```tut:book:silent
 import cats.syntax.applicative._ // for pure
@@ -319,7 +319,7 @@ def evalAll(input: List[String]): CalcState[Int] =
 
 </div>
 
-We can use `evalAll` to conveniently evaluate multi-stage expressions:
+Можно использовать `evalAll`, чтобы удобно вычислять многоэтапные вычисления:
 
 ```tut:book
 val program = evalAll(List("1", "2", "+", "3", "*"))
@@ -327,11 +327,11 @@ val program = evalAll(List("1", "2", "+", "3", "*"))
 program.runA(Nil).value
 ```
 
-Because `evalOne` and `evalAll` both return instances of `State`,
-we can thread these results together using `flatMap`.
-`evalOne` produces a simple stack transformation and
-`evalAll` produces a complex one, but they're both pure functions
-and we can use them in any order as many times as we like:
+Из-за того, что `evalOne` и `evalAll` оба возвращают экземпляры `State`,
+можно связать их результаты вместе, используя `flatMap`.
+`evalOne` производит простое преобразование стека, а
+`evalAll` производит сложное, но они являются чистыми функциями
+и можно использовать их в любом порядке столько раз, сколько захотим:
 
 ```tut:book
 val program = for {
@@ -343,14 +343,14 @@ val program = for {
 program.runA(Nil).value
 ```
 
-Complete the exercise by implementing an `evalInput` function that
-splits an input `String` into symbols, calls `evalAll`,
-and runs the result with an initial stack.
+Завершите упражнение, реализовав функцию `evalInput`, которая
+разделяет входной `String` на символы, вызывает `evalAll`,
+и запускает вычисление результата, имея начальное значение.
 
 <div class="solution">
-We've done all the hard work now.
-All we need to do is split the input into terms
-and call `runA` and `value` to unpack the result:
+Мы проделали всю тяжелую работу.
+Все, что нам нужно сделать, это разделить входные данные на символы
+и вызвать `runA` и `value`, чтобы получить результат:
 
 ```tut:book:silent
 def evalInput(input: String): Int =
