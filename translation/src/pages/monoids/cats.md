@@ -25,8 +25,8 @@ import cats.Semigroup
 Cats Kernel это подпроект Cats,
 предоставляющий небольшой набор тайпклассов
 для библиотек, которые не требуют полного набора инструментов Cats.
-Пока это ядро тайпклассов технически
-определено в модуле [`cats.kernel`][cats.kernel.package],
+Пока основные тайпклассы технически
+определены в пакете [`cats.kernel`][cats.kernel.package],
 они все доступны по псевдониму модуля [`cats`][cats.package],
 поэтому нам не нужно беспокоиться о различии.
 
@@ -36,7 +36,7 @@ Cats Kernel это подпроект Cats,
 и [`Monoid`][cats.kernel.Monoid].
 Все остальные тайпклассы, которые мы рассмотрели,
 это часть основного проекта Cats, и они
-определены в модуле [`cats`][cats.package].
+определены в пакете[`cats`][cats.package].
 </div>
 
 ### Экземпляры моноидов {#sec:monoid-instances}
@@ -45,8 +45,8 @@ Cats Kernel это подпроект Cats,
 объект-компаньон имеет метод `apply`,
 который возвращает экземпляр тайпкласса для конкретного типа.
 Например, если мы хотим экземпляр моноида для `String`,
-и мы имеем подходящие значения неявных параметров в области видимости,
-мы можем написать следующее:
+и имеем подходящие значения неявных параметров в области видимости,
+можно написать следующее:
 
 ```tut:book:silent
 import cats.Monoid
@@ -66,7 +66,7 @@ Monoid.apply[String].empty
 ```
 
 Как мы знаем, `Monoid` расширяет `Semigroup`.
-Если нам не нужен метод `empty`, мы можем также написать:
+Если нам не нужен метод `empty`, можно также написать:
 
 ```tut:book:silent
 import cats.Semigroup
@@ -92,7 +92,7 @@ import cats.instances.int._ // для Monoid
 Monoid[Int].combine(32, 10)
 ```
 
-Похожим образом, мы можем собрать `Monoid[Option[Int]]`, используя
+Похожим образом, можно собрать `Monoid[Option[Int]]`, используя
 экземпляры из [`cats.instances.int`][cats.instances.int]
 и [`cats.instances.option`][cats.instances.option]:
 
@@ -143,14 +143,14 @@ val intResult = 1 |+| 2 |+| Monoid[Int].empty
 По трагической случайности этот код удалён! Перепиши метод и спаси мир!
 
 <div class="solution">
-Мы можем записать сложение просто как `foldLeft`, используя `0` и оператор `+`:
+Можно записать сложение просто как `foldLeft`, используя `0` и оператор `+`:
 
 ```tut:book:silent
 def add(items: List[Int]): Int =
   items.foldLeft(0)(_ + _)
 ```
 
-Также мы можем записать это с использованием `Monoid`,
+Также можно записать это с использованием `Monoid`,
 хотя здесь ещё нет в этом необходимости:
 
 ```tut:book:silent
@@ -184,14 +184,14 @@ def add[A](items: List[A])(implicit monoid: Monoid[A]): A =
   items.foldLeft(monoid.empty)(_ |+| _)
 ```
 
-По желанию, мы можем использовать синтаксис *ограничений контекста* (context bound) Scala, чтобы записать то же самое понятнее: 
+По желанию, можно использовать синтаксис *ограничений контекста* (context bound) Scala, чтобы записать то же самое понятнее: 
 
 ```tut:book:silent
 def add[A: Monoid](items: List[A]): A =
   items.foldLeft(Monoid[A].empty)(_ |+| _)
 ```
 
-Мы можем использовать этот код для добавления значений типа `Int` и `Option[Int]`по запросу:
+Можно использовать этот код для добавления значений типа `Int` и `Option[Int]`по запросу:
 
 ```tut:book:silent
 import cats.instances.int._ // для Monoid
@@ -218,7 +218,7 @@ add(List(Some(1), Some(2), Some(3)))
 
 Это происходит потому, что выведенный тип списка - `List[Some[Int]]`,
 в то время как Cats будет генерировать `Monoid` только для `Option[Int]`.
-Мы скоро увидим, как обойти это.
+Скоро увидим, как обойти это.
 </div>
 
 SuperAdder выходит на рынок POS (точек продаж, а не других POS).
@@ -232,7 +232,7 @@ case class Order(totalCost: Double, quantity: Double)
 Сделай это!
 
 <div class="solution">
-Легко — мы просто определяем экземпляр моноида для `Order`!
+Легко — просто определяем экземпляр моноида для `Order`!
 
 ```tut:book:silent
 implicit val monoid: Monoid[Order] = new Monoid[Order] {
