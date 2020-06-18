@@ -79,7 +79,7 @@ type F[A] = A => Double
 scalacOptions += "-Ypartial-unification"
 ```
 
-### Исключение неизвестных параметров слева направо
+### Исключение параметров слева направо
 
 Частичная унификация в компиляторе Scala 
 работает через исправление параметров типа слева направо.
@@ -93,7 +93,7 @@ type F[A] = Int => A
 val functor = Functor[F]
 ```
 
-Такое исключение неизвестных параметров слева направо работает для 
+Такое исключение параметров слева направо работает для 
 широкого спектра распространенных сценариев, 
 включая поиск `Functor` для 
 таких типов, как` Function1` и `Either`:
@@ -159,7 +159,7 @@ val func3c = func2.contramap(func1)
 type F[A] = A => Double
 ```
 
-![Диаграмма: сопоставление над Function1](src/pages/functors/function-contramap.pdf+svg){#fig:functors:function-contramap-type-chart}
+![Диаграмма: применение contramap к Function1](src/pages/functors/function-contramap.pdf+svg){#fig:functors:function-contramap-type-chart}
 
 Ошибки компилятора происходят из-за его ориентированности слева направо. 
 Мы можем доказать это, создав псевдоним типа, 
